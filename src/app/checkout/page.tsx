@@ -214,23 +214,19 @@ function CheckoutForm() {
               <CardHeader>
                 <CardTitle>Paiement par Mobile Money</CardTitle>
                 <CardDescription>
-                  Vous serez redirigé vers MaxiCash pour finaliser le paiement.
+                  Vous serez redirigé pour finaliser le paiement.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...mobileMoneyForm}>
                   <form
-                    action={process.env.NEXT_PUBLIC_MAXICASH_API_URL}
+                    action="/api/maxicash-redirect"
                     method="POST"
                     className="space-y-4"
                   >
-                    {/* Hidden fields for MaxiCash API */}
-                    <input type="hidden" name="PayType" value="MaxiCash" />
+                    {/* Hidden fields for our API route */}
                     <input type="hidden" name="Amount" value={amountInCents} />
                     <input type="hidden" name="Currency" value="USD" />
-                    <input type="hidden" name="MerchantID" value={process.env.NEXT_PUBLIC_MAXICASH_MERCHANT_ID} />
-                    <input type="hidden" name="MerchantPassword" value={process.env.NEXT_PUBLIC_MAXICASH_MERCHANT_PASSWORD} />
-                    <input type="hidden" name="Language" value="fr" />
                     <input type="hidden" name="Reference" value={transactionReference} />
                     <input type="hidden" name="accepturl" value={acceptUrl} />
                     <input type="hidden" name="declineurl" value={declineUrl} />
