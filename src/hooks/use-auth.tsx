@@ -8,7 +8,7 @@ import { doc, onSnapshot, DocumentData, Timestamp } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 
 interface AuthContextType {
-  user: User | null;
+  user: User | null | undefined;
   userData: DocumentData | null;
   loading: boolean;
   isSubscribed: boolean;
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  const value = {
+  const value: AuthContextType = {
     user,
     userData,
     loading: authLoading || dataLoading,
