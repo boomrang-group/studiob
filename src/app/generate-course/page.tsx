@@ -159,7 +159,7 @@ export default function GenerateCoursePage() {
                  slide = pptx.addSlide();
                  slide.addText(sections[i], { x: 0.5, y: 0.25, fontSize: 28, bold: true });
             } else { // Content
-                 slide.addText(sections[i].replace(/<br \\/>/g, '\n'), { x: 0.5, y: 1.5, fontSize: 16, w: '90%', h: '75%' });
+                 slide.addText(sections[i].replace(/<br \/>/g, '\n'), { x: 0.5, y: 1.5, fontSize: 16, w: '90%', h: '75%' });
             }
         }
         
