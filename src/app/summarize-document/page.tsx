@@ -1,13 +1,15 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { summarizeDocument } from '@/ai/flows/summarize-document';
 import { generateAudioSummary } from '@/ai/flows/generate-audio-summary';
 import { generateAudioDialogue } from '@/ai/flows/generate-audio-dialogue';
+import { useRouter } from 'next/navigation';
+
 import {
   Form,
   FormControl,
@@ -22,6 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Loader2, FileUp, FileCheck, Podcast, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ['application/pdf', 'text/plain'];
@@ -45,6 +48,41 @@ const fileToDataURI = (file: File): Promise<string> => {
     reader.readAsDataURL(file);
   });
 };
+
+function AuthRequiredWrapper({ children }: { children: React.ReactNode }) {
+    const { user, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push('/login');
+        }
+    }, [user, loading, router]);
+
+    if (loading || !user) {
+        return (
+             <div className="space-y-8">
+                <div>
+                    <Skeleton className="h-10 w-1/2" />
+                    <Skeleton className="h-4 w-3/4 mt-2" />
+                </div>
+                 <Card>
+                    <CardHeader>
+                        <Skeleton className="h-6 w-1/4" />
+                        <Skeleton className="h-4 w-1/2 mt-2" />
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-48" />
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    return <>{children}</>;
+}
+
 
 export default function SummarizeDocumentPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -137,105 +175,109 @@ export default function SummarizeDocumentPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">
-          Synthèse de Document
-        </h1>
-        <p className="text-muted-foreground">
-          Importez un document et obtenez un résumé concis en quelques instants.
-        </p>
-      </div>
+    <AuthRequiredWrapper>
+        <div className="space-y-8">
+        <div>
+            <h1 className="font-headline text-3xl md:text-4xl font-bold">
+            Synthèse de Document
+            </h1>
+            <p className="text-muted-foreground">
+            Importez un document et obtenez un résumé concis en quelques instants.
+            </p>
+        </div>
 
-       {isPayAsYouGo && (
+        {isPayAsYouGo && (
+            <Card>
+                <CardContent className="pt-6">
+                    <p className="text-center text-muted-foreground">Crédits restants : <span className="font-bold text-primary">{credits ?? 0}</span></p>
+                </CardContent>
+            </Card>
+        )}
+
         <Card>
-            <CardContent className="pt-6">
-                <p className="text-center text-muted-foreground">Crédits restants : <span className="font-bold text-primary">{credits ?? 0}</span></p>
+            <CardHeader>
+            <CardTitle>Importer un document</CardTitle>
+            <CardDescription>
+                Formats acceptés : PDF, TXT. Taille maximale : 5MB.
+            </CardDescription>
+            </CardHeader>
+            <CardContent>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                    control={form.control}
+                    name="document"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Fichier</FormLabel>
+                        <FormControl>
+                        <div className="relative">
+                            <FileUp className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Input type="file" className="pl-10" {...fileRef} />
+                        </div>
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <Button type="submit" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isLoading ? 'Analyse du document...' : 'Générer la synthèse'}
+                </Button>
+                </form>
+            </Form>
             </CardContent>
         </Card>
-      )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Importer un document</CardTitle>
-          <CardDescription>
-            Formats acceptés : PDF, TXT. Taille maximale : 5MB.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="document"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fichier</FormLabel>
-                    <FormControl>
-                       <div className="relative">
-                        <FileUp className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input type="file" className="pl-10" {...fileRef} />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+        
+        {summary && (
+            <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <FileCheck className="h-6 w-6"/>
+                    Synthèse de <span className="font-normal italic">{fileName}</span>
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div
+                className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: summary.replace(/\n/g, '<br />') }}
+                />
+            </CardContent>
+            <CardFooter className="flex-col items-start gap-4">
+                <div className="flex flex-wrap gap-2">
+                    <Button onClick={handleGenerateAudio} disabled={isAudioLoading || !summary.trim()}>
+                        {isAudioLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Podcast className="mr-2 h-4 w-4" />}
+                        Générer un résumé audio
+                    </Button>
+                    <Button onClick={handleGenerateDialogue} disabled={isDialogueLoading || !summary.trim()}>
+                        {isDialogueLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Users className="mr-2 h-4 w-4" />}
+                        Générer un dialogue audio
+                    </Button>
+                </div>
+                {audioSummary && (
+                    <div className="w-full mt-4">
+                        <h3 className="font-semibold mb-2">Résumé audio :</h3>
+                        <audio controls className="w-full">
+                            <source src={audioSummary} type="audio/wav" />
+                            Votre navigateur ne supporte pas l'élément audio.
+                        </audio>
+                    </div>
                 )}
-              />
-              <Button type="submit" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isLoading ? 'Analyse du document...' : 'Générer la synthèse'}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-      
-      {summary && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-                <FileCheck className="h-6 w-6"/>
-                Synthèse de <span className="font-normal italic">{fileName}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div
-              className="prose dark:prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: summary.replace(/\n/g, '<br />') }}
-            />
-          </CardContent>
-          <CardFooter className="flex-col items-start gap-4">
-            <div className="flex flex-wrap gap-2">
-                <Button onClick={handleGenerateAudio} disabled={isAudioLoading || !summary.trim()}>
-                    {isAudioLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Podcast className="mr-2 h-4 w-4" />}
-                    Générer un résumé audio
-                </Button>
-                <Button onClick={handleGenerateDialogue} disabled={isDialogueLoading || !summary.trim()}>
-                    {isDialogueLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Users className="mr-2 h-4 w-4" />}
-                    Générer un dialogue audio
-                </Button>
-            </div>
-            {audioSummary && (
-                <div className="w-full mt-4">
-                    <h3 className="font-semibold mb-2">Résumé audio :</h3>
-                    <audio controls className="w-full">
-                        <source src={audioSummary} type="audio/wav" />
-                        Votre navigateur ne supporte pas l'élément audio.
-                    </audio>
-                </div>
-            )}
-            {audioDialogue && (
-                <div className="w-full mt-4">
-                    <h3 className="font-semibold mb-2">Dialogue audio :</h3>
-                    <audio controls className="w-full">
-                        <source src={audioDialogue} type="audio/wav" />
-                        Votre navigateur ne supporte pas l'élément audio.
-                    </audio>
-                </div>
-            )}
-          </CardFooter>
-        </Card>
-      )}
-    </div>
+                {audioDialogue && (
+                    <div className="w-full mt-4">
+                        <h3 className="font-semibold mb-2">Dialogue audio :</h3>
+                        <audio controls className="w-full">
+                            <source src={audioDialogue} type="audio/wav" />
+                            Votre navigateur ne supporte pas l'élément audio.
+                        </audio>
+                    </div>
+                )}
+            </CardFooter>
+            </Card>
+        )}
+        </div>
+    </AuthRequiredWrapper>
   );
 }
+
+    

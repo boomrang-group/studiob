@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,6 +10,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Packer, Document, Paragraph, TextRun, HeadingLevel } from 'docx';
 import PptxGenJS from 'pptxgenjs';
+import { useRouter } from 'next/navigation';
 
 
 import {
@@ -32,6 +33,41 @@ import { Skeleton } from '@/components/ui/skeleton';
 const formSchema = z.object({
   prompt: z.string().min(10, 'Le sujet doit contenir au moins 10 caractères.'),
 });
+
+function AuthRequiredWrapper({ children }: { children: React.ReactNode }) {
+    const { user, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push('/login');
+        }
+    }, [user, loading, router]);
+
+    if (loading || !user) {
+        return (
+             <div className="space-y-8">
+                <div>
+                    <Skeleton className="h-10 w-1/2" />
+                    <Skeleton className="h-4 w-3/4 mt-2" />
+                </div>
+                 <Card>
+                    <CardHeader>
+                        <Skeleton className="h-6 w-1/4" />
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <Skeleton className="h-4 w-1/6" />
+                        <Skeleton className="h-24 w-full" />
+                        <Skeleton className="h-10 w-40" />
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    return <>{children}</>;
+}
+
 
 export default function GenerateCoursePage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -132,7 +168,7 @@ export default function GenerateCoursePage() {
         console.error('Export DOCX error:', error);
         toast({ title: 'Erreur', description: 'Une erreur est survenue lors de l\'exportation en DOCX.', variant: 'destructive' });
     } finally {
-        setIsExporting(false);
+      setIsExporting(false);
     }
   };
 
@@ -170,115 +206,119 @@ export default function GenerateCoursePage() {
         console.error('Export PPTX error:', error);
         toast({ title: 'Erreur', description: 'Une erreur est survenue lors de l\'exportation en PPTX.', variant: 'destructive' });
     } finally {
-        setIsExporting(false);
+      setIsExporting(false);
     }
   };
 
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">
-          Générateur de Cours
-        </h1>
-        <p className="text-muted-foreground">
-          Décrivez le cours que vous souhaitez créer et laissez l'IA faire le reste.
-        </p>
-      </div>
+    <AuthRequiredWrapper>
+        <div className="space-y-8">
+        <div>
+            <h1 className="font-headline text-3xl md:text-4xl font-bold">
+            Générateur de Cours
+            </h1>
+            <p className="text-muted-foreground">
+            Décrivez le cours que vous souhaitez créer et laissez l'IA faire le reste.
+            </p>
+        </div>
 
-      {isPayAsYouGo && (
+        {isPayAsYouGo && (
+            <Card>
+                <CardContent className="pt-6">
+                    <p className="text-center text-muted-foreground">Crédits restants : <span className="font-bold text-primary">{credits ?? 0}</span></p>
+                </CardContent>
+            </Card>
+        )}
+
         <Card>
-            <CardContent className="pt-6">
-                <p className="text-center text-muted-foreground">Crédits restants : <span className="font-bold text-primary">{credits ?? 0}</span></p>
+            <CardHeader>
+            <CardTitle>Créer un nouveau cours</CardTitle>
+            </CardHeader>
+            <CardContent>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                    control={form.control}
+                    name="prompt"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Sujet du cours</FormLabel>
+                        <FormControl>
+                        <Textarea
+                            placeholder="Ex: Une leçon sur la photosynthèse pour des élèves de CM2, incluant des exemples simples et une activité pratique."
+                            className="min-h-[120px]"
+                            {...field}
+                        />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <Button type="submit" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Générer le contenu
+                </Button>
+                </form>
+            </Form>
             </CardContent>
         </Card>
-      )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Créer un nouveau cours</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="prompt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sujet du cours</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Ex: Une leçon sur la photosynthèse pour des élèves de CM2, incluant des exemples simples et une activité pratique."
-                        className="min-h-[120px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Générer le contenu
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+        {lessonContent && (
+            <Card>
+            <CardHeader>
+                <CardTitle>Contenu Généré</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div
+                ref={lessonContentRef}
+                className="prose dark:prose-invert max-w-none p-4 bg-background text-foreground"
+                dangerouslySetInnerHTML={{ __html: lessonContent.replace(/\n/g, '<br />') }}
+                />
+            </CardContent>
+            <CardFooter className="gap-2">
+                <Button variant="outline" onClick={handleExportPDF} disabled={isExporting}>
+                    {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
+                    Exporter en PDF
+                </Button>
 
-      {lessonContent && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Contenu Généré</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div
-              ref={lessonContentRef}
-              className="prose dark:prose-invert max-w-none p-4 bg-background text-foreground"
-              dangerouslySetInnerHTML={{ __html: lessonContent.replace(/\n/g, '<br />') }}
-            />
-          </CardContent>
-          <CardFooter className="gap-2">
-             <Button variant="outline" onClick={handleExportPDF} disabled={isExporting}>
-                {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
-                Exporter en PDF
-             </Button>
-
-            {authLoading ? (
-                <Skeleton className="h-10 w-48" />
-            ) : isSubscribed ? (
-                <>
-                    <Button variant="outline" onClick={handleExportDocx} disabled={isExporting}>
-                        {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <File className="mr-2 h-4 w-4"/>}
-                        Word (.docx)
-                    </Button>
-                    <Button variant="outline" onClick={handleExportPptx} disabled={isExporting}>
-                        {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Presentation className="mr-2 h-4 w-4"/>}
-                        PowerPoint (.pptx)
-                    </Button>
-                </>
-            ) : (
-                <>
-                    <Button variant="outline" asChild>
-                        <Link href="/subscribe">
-                            <Crown className="mr-2 h-4 w-4 text-amber-500" />
-                            <File className="mr-2 h-4 w-4"/>
+                {authLoading ? (
+                    <Skeleton className="h-10 w-48" />
+                ) : isSubscribed ? (
+                    <>
+                        <Button variant="outline" onClick={handleExportDocx} disabled={isExporting}>
+                            {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <File className="mr-2 h-4 w-4"/>}
                             Word (.docx)
-                        </Link>
-                    </Button>
-                    <Button variant="outline" asChild>
-                        <Link href="/subscribe">
-                            <Crown className="mr-2 h-4 w-4 text-amber-500" />
-                            <Presentation className="mr-2 h-4 w-4"/>
+                        </Button>
+                        <Button variant="outline" onClick={handleExportPptx} disabled={isExporting}>
+                            {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Presentation className="mr-2 h-4 w-4"/>}
                             PowerPoint (.pptx)
-                        </Link>
-                    </Button>
-                </>
-            )}
-          </CardFooter>
-        </Card>
-      )}
-    </div>
+                        </Button>
+                    </>
+                ) : (
+                    <>
+                        <Button variant="outline" asChild>
+                            <Link href="/subscribe">
+                                <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                                <File className="mr-2 h-4 w-4"/>
+                                Word (.docx)
+                            </Link>
+                        </Button>
+                        <Button variant="outline" asChild>
+                            <Link href="/subscribe">
+                                <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                                <Presentation className="mr-2 h-4 w-4"/>
+                                PowerPoint (.pptx)
+                            </Link>
+                        </Button>
+                    </>
+                )}
+            </CardFooter>
+            </Card>
+        )}
+        </div>
+    </AuthRequiredWrapper>
   );
 }
+
+    
