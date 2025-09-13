@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -22,8 +22,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
-import { useRouter } from 'next/navigation';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
   topic: z.string().min(10, 'Le sujet doit contenir au moins 10 caractères.'),
@@ -31,50 +29,11 @@ const formSchema = z.object({
   lessonLengthMinutes: z.coerce.number().int().min(1).max(60),
 });
 
-function AuthRequiredWrapper({ children }: { children: React.ReactNode }) {
-    const { user, loading } = useAuth();
-    const router = useRouter();
-
-    useEffect(() => {
-        if (!loading && !user) {
-            router.push('/login');
-        }
-    }, [user, loading, router]);
-
-    if (loading || !user) {
-        return (
-             <div className="space-y-8">
-                <div>
-                    <Skeleton className="h-10 w-1/2" />
-                    <Skeleton className="h-4 w-3/4 mt-2" />
-                </div>
-                 <Card>
-                    <CardHeader>
-                        <Skeleton className="h-6 w-1/4" />
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <Skeleton className="h-4 w-1/6" />
-                        <Skeleton className="h-24 w-full" />
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Skeleton className="h-10 w-full" />
-                            <Skeleton className="h-10 w-full" />
-                        </div>
-                        <Skeleton className="h-10 w-40" />
-                    </CardContent>
-                </Card>
-            </div>
-        );
-    }
-
-    return <>{children}</>;
-}
-
-
 export default function GenerateScriptPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [scriptContent, setScriptContent] = useState('');
   const { toast } = useToast();
-  const { userData } = useAuth();
+  const { user, userData } = useAuth();
   
   const credits = userData?.subscription?.credits;
   const isPayAsYouGo = userData?.subscription?.plan === 'Pay-As-You-Go';
@@ -90,6 +49,14 @@ export default function GenerateScriptPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+        toast({
+            title: 'Authentification requise',
+            description: 'Veuillez vous connecter pour générer du contenu.',
+            variant: 'destructive',
+        });
+        return;
+    }
     setIsLoading(true);
     setScriptContent('');
     try {
@@ -108,112 +75,108 @@ export default function GenerateScriptPage() {
   }
 
   return (
-    <AuthRequiredWrapper>
-        <div className="space-y-8">
-        <div>
-            <h1 className="font-headline text-3xl md:text-4xl font-bold">
-            Générateur de Script Vidéo
-            </h1>
-            <p className="text-muted-foreground">
-            Transformez vos idées de leçons en scripts vidéo prêts à être tournés.
-            </p>
-        </div>
+    <div className="space-y-8">
+    <div>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">
+        Générateur de Script Vidéo
+        </h1>
+        <p className="text-muted-foreground">
+        Transformez vos idées de leçons en scripts vidéo prêts à être tournés.
+        </p>
+    </div>
 
-        {isPayAsYouGo && (
-            <Card>
-                <CardContent className="pt-6">
-                    <p className="text-center text-muted-foreground">Crédits restants : <span className="font-bold text-primary">{credits ?? 0}</span></p>
-                </CardContent>
-            </Card>
-        )}
-
+    {user && isPayAsYouGo && (
         <Card>
-            <CardHeader>
-            <CardTitle>Nouveau script vidéo</CardTitle>
-            </CardHeader>
-            <CardContent>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                    control={form.control}
-                    name="topic"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Sujet de la vidéo</FormLabel>
-                        <FormControl>
-                        <Textarea
-                            placeholder="Ex: Le cycle de l'eau expliqué aux enfants"
-                            {...field}
-                        />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                    control={form.control}
-                    name="targetAudience"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Public Cible</FormLabel>
-                        <FormControl>
-                            <Input placeholder="Ex: Lycéens" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="lessonLengthMinutes"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Durée de la vidéo (minutes)</FormLabel>
-                        <FormControl>
-                            <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                </div>
-
-                <Button type="submit" disabled={isLoading}>
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Générer le script
-                </Button>
-                </form>
-            </Form>
+            <CardContent className="pt-6">
+                <p className="text-center text-muted-foreground">Crédits restants : <span className="font-bold text-primary">{credits ?? 0}</span></p>
             </CardContent>
         </Card>
-        
-        {scriptContent && (
-            <Card>
-            <CardHeader>
-                <CardTitle>Script Généré</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div
-                className="prose dark:prose-invert max-w-none whitespace-pre-wrap"
-                dangerouslySetInnerHTML={{ __html: scriptContent }}
+    )}
+
+    <Card>
+        <CardHeader>
+        <CardTitle>Nouveau script vidéo</CardTitle>
+        </CardHeader>
+        <CardContent>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+                control={form.control}
+                name="topic"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Sujet de la vidéo</FormLabel>
+                    <FormControl>
+                    <Textarea
+                        placeholder="Ex: Le cycle de l'eau expliqué aux enfants"
+                        {...field}
+                    />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                control={form.control}
+                name="targetAudience"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Public Cible</FormLabel>
+                    <FormControl>
+                        <Input placeholder="Ex: Lycéens" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
                 />
-            </CardContent>
-            <CardFooter>
-                <Button asChild variant="outline">
-                    <Link href="/subscribe">
-                        <Crown className="mr-2 h-4 w-4 text-amber-500" />
-                        <Download className="mr-2 h-4 w-4" />
-                        Exporter en MP4
-                    </Link>
-                </Button>
-            </CardFooter>
-            </Card>
-        )}
-        </div>
-    </AuthRequiredWrapper>
+                <FormField
+                control={form.control}
+                name="lessonLengthMinutes"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Durée de la vidéo (minutes)</FormLabel>
+                    <FormControl>
+                        <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            </div>
+
+            <Button type="submit" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Générer le script
+            </Button>
+            </form>
+        </Form>
+        </CardContent>
+    </Card>
+    
+    {scriptContent && (
+        <Card>
+        <CardHeader>
+            <CardTitle>Script Généré</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <div
+            className="prose dark:prose-invert max-w-none whitespace-pre-wrap"
+            dangerouslySetInnerHTML={{ __html: scriptContent }}
+            />
+        </CardContent>
+        <CardFooter>
+            <Button asChild variant="outline">
+                <Link href="/subscribe">
+                    <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                    <Download className="mr-2 h-4 w-4" />
+                    Exporter en MP4
+                </Link>
+            </Button>
+        </CardFooter>
+        </Card>
+    )}
+    </div>
   );
 }
-
-    

@@ -37,9 +37,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
-import { useRouter } from 'next/navigation';
-import { Skeleton } from '@/components/ui/skeleton';
-
 
 interface Clip {
   id: number;
@@ -75,38 +72,6 @@ interface AudioClip {
     file: Blob;
 }
 
-function AuthRequiredWrapper({ children }: { children: React.ReactNode }) {
-    const { user, loading } = useAuth();
-    const router = useRouter();
-
-    useEffect(() => {
-        if (!loading && !user) {
-            router.push('/login');
-        }
-    }, [user, loading, router]);
-
-    if (loading || !user) {
-        return (
-             <div className="space-y-8">
-                <div>
-                    <Skeleton className="h-10 w-1/2" />
-                    <Skeleton className="h-4 w-3/4 mt-2" />
-                </div>
-                 <Card>
-                    <CardHeader>
-                        <Skeleton className="h-6 w-1/4" />
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <Skeleton className="h-10 w-full" />
-                    </CardContent>
-                </Card>
-            </div>
-        );
-    }
-
-    return <>{children}</>;
-}
-
 
 export default function EditVideoPage() {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
@@ -135,8 +100,18 @@ export default function EditVideoPage() {
   // Export state
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
+  
+  const { user } = useAuth();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user) {
+        toast({
+            title: 'Authentification requise',
+            description: 'Veuillez vous connecter pour importer une vidéo.',
+            variant: 'destructive',
+        });
+        return;
+    }
     const file = event.target.files?.[0];
     if (file && file.type.startsWith('video/')) {
       const videoUrl = URL.createObjectURL(file);
@@ -467,352 +442,348 @@ export default function EditVideoPage() {
   const timelineWidth = 1000;
 
   return (
-    <AuthRequiredWrapper>
-        <div className="container mx-auto p-4 space-y-8">
-        <div>
-            <h1 className="font-headline text-3xl md:text-4xl font-bold">
-            Editeur Vidéo
-            </h1>
-            <p className="text-muted-foreground">
-            Montez vos vidéos de cours avec des outils simples et intuitifs.
-            </p>
+    <div className="container mx-auto p-4 space-y-8">
+    <div>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">
+        Editeur Vidéo
+        </h1>
+        <p className="text-muted-foreground">
+        Montez vos vidéos de cours avec des outils simples et intuitifs.
+        </p>
+    </div>
+
+    <Card>
+        <CardHeader>
+        <CardTitle>Importer une vidéo</CardTitle>
+        </CardHeader>
+        <CardContent>
+        <div className="flex w-full items-center space-x-2">
+            <Input
+            type="file"
+            accept="video/*"
+            onChange={handleFileChange}
+            className="cursor-pointer"
+            disabled={isExporting}
+            />
+            <Button variant="outline" disabled={isExporting}>
+            <Upload className="mr-2 h-4 w-4" />
+            Importer
+            </Button>
         </div>
+        </CardContent>
+    </Card>
 
-        <Card>
-            <CardHeader>
-            <CardTitle>Importer une vidéo</CardTitle>
-            </CardHeader>
-            <CardContent>
-            <div className="flex w-full items-center space-x-2">
-                <Input
-                type="file"
-                accept="video/*"
-                onChange={handleFileChange}
-                className="cursor-pointer"
-                disabled={isExporting}
-                />
-                <Button variant="outline" disabled={isExporting}>
-                <Upload className="mr-2 h-4 w-4" />
-                Importer
-                </Button>
-            </div>
-            </CardContent>
-        </Card>
-
-        {videoSrc && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-4">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Aperçu Vidéo</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="relative">
-                            <video
-                                ref={videoRef}
-                                src={videoSrc}
-                                className="w-full rounded-md bg-muted"
-                                onTimeUpdate={handleTimeUpdate}
-                                onLoadedMetadata={handleLoadedMetadata}
-                                onPlay={() => setIsPlaying(true)}
-                                onPause={() => setIsPlaying(false)}
-                                onClick={togglePlay}
-                            ></video>
-                            {renderOverlays()}
-                        </div>
-                        <div className="mt-4 flex items-center gap-4">
-                        <Button onClick={togglePlay} size="icon" disabled={isExporting}>
-                            {isPlaying ? <Pause /> : <Play />}
-                        </Button>
-                        <div className="flex items-center gap-2 text-sm font-mono w-full">
-                            <span>{formatTime(currentTime)}</span>
-                                <Slider
-                                    value={[currentTime]}
-                                    max={duration}
-                                    step={0.1}
-                                    onValueChange={handleSeek}
-                                    disabled={isExporting}
-                                />
-                            <span>{formatTime(duration)}</span>
-                        </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
+    {videoSrc && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-4">
+            <Card>
                 <CardHeader>
-                    <CardTitle>Timeline</CardTitle>
+                    <CardTitle>Aperçu Vidéo</CardTitle>
                 </CardHeader>
-                <CardContent className="overflow-x-auto pb-4">
-                    <div className="relative" style={{ width: `${timelineWidth}px`}}>
-                        <div
-                            className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10"
-                            style={{ left: `${(currentTime / duration) * timelineWidth}px` }}
-                        >
-                            <div className="absolute -top-2 -translate-x-1/2 h-4 w-4 bg-red-500 rounded-full"></div>
+                <CardContent>
+                    <div className="relative">
+                        <video
+                            ref={videoRef}
+                            src={videoSrc}
+                            className="w-full rounded-md bg-muted"
+                            onTimeUpdate={handleTimeUpdate}
+                            onLoadedMetadata={handleLoadedMetadata}
+                            onPlay={() => setIsPlaying(true)}
+                            onPause={() => setIsPlaying(false)}
+                            onClick={togglePlay}
+                        ></video>
+                        {renderOverlays()}
+                    </div>
+                    <div className="mt-4 flex items-center gap-4">
+                    <Button onClick={togglePlay} size="icon" disabled={isExporting}>
+                        {isPlaying ? <Pause /> : <Play />}
+                    </Button>
+                    <div className="flex items-center gap-2 text-sm font-mono w-full">
+                        <span>{formatTime(currentTime)}</span>
+                            <Slider
+                                value={[currentTime]}
+                                max={duration}
+                                step={0.1}
+                                onValueChange={handleSeek}
+                                disabled={isExporting}
+                            />
+                        <span>{formatTime(duration)}</span>
+                    </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+            <CardHeader>
+                <CardTitle>Timeline</CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-x-auto pb-4">
+                <div className="relative" style={{ width: `${timelineWidth}px`}}>
+                    <div
+                        className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10"
+                        style={{ left: `${(currentTime / duration) * timelineWidth}px` }}
+                    >
+                        <div className="absolute -top-2 -translate-x-1/2 h-4 w-4 bg-red-500 rounded-full"></div>
+                    </div>
+                    
+                    <div className="space-y-2 pt-4">
+                        <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs font-semibold flex items-center gap-1 shrink-0">
+                            <Video className="h-4 w-4" />
+                            <span>Piste Vidéo</span>
                         </div>
-                        
-                        <div className="space-y-2 pt-4">
-                            <div className="flex items-center gap-2">
-                            <div className="w-24 text-xs font-semibold flex items-center gap-1 shrink-0">
-                                <Video className="h-4 w-4" />
-                                <span>Piste Vidéo</span>
-                            </div>
-                            <div className="h-20 bg-muted rounded-md flex-1 relative flex items-center">
-                                {clips.map((clip) => (
-                                    <div
-                                        key={clip.id}
-                                        onClick={() => !isExporting && setActiveClip(clip)}
-                                        className={cn(
-                                        'h-full bg-primary/20 border-2 border-transparent hover:border-primary',
-                                        'flex items-center justify-center text-xs text-center p-1',
-                                        'absolute',
-                                        isExporting ? 'cursor-not-allowed' : 'cursor-pointer',
-                                        {
-                                            'border-primary bg-primary/40': activeClip?.id === clip.id,
-                                        }
-                                        )}
-                                        style={{
-                                        left: `${(clip.start / duration) * timelineWidth}px`,
-                                        width: `${(clip.duration / duration) * timelineWidth}px`,
-                                        }}
-                                    >
-                                        <span className="truncate">Clip Vidéo<br/>{formatTime(clip.duration)}</span>
-                                    </div>
-                                    ))}
-                            </div>
-                            </div>
+                        <div className="h-20 bg-muted rounded-md flex-1 relative flex items-center">
+                            {clips.map((clip) => (
+                                <div
+                                    key={clip.id}
+                                    onClick={() => !isExporting && setActiveClip(clip)}
+                                    className={cn(
+                                    'h-full bg-primary/20 border-2 border-transparent hover:border-primary',
+                                    'flex items-center justify-center text-xs text-center p-1',
+                                    'absolute',
+                                    isExporting ? 'cursor-not-allowed' : 'cursor-pointer',
+                                    {
+                                        'border-primary bg-primary/40': activeClip?.id === clip.id,
+                                    }
+                                    )}
+                                    style={{
+                                    left: `${(clip.start / duration) * timelineWidth}px`,
+                                    width: `${(clip.duration / duration) * timelineWidth}px`,
+                                    }}
+                                >
+                                    <span className="truncate">Clip Vidéo<br/>{formatTime(clip.duration)}</span>
+                                </div>
+                                ))}
+                        </div>
+                        </div>
 
-                            <div className="flex items-center gap-2">
-                            <div className="w-24 text-xs font-semibold flex items-center gap-1 shrink-0">
-                                <FileImage className="h-4 w-4" />
-                                <span>Piste Image</span>
-                            </div>
-                            <div className="h-12 bg-muted rounded-md flex-1 relative flex items-center">
-                                {imageClips.map((clip) => (
-                                    <div
-                                        key={clip.id}
-                                        className={cn(
-                                            'h-full bg-orange-500/20 border-2 border-orange-500',
-                                            'flex items-center justify-center text-xs text-center p-1',
-                                            'absolute'
-                                        )}
-                                        style={{
-                                        left: `${(clip.start / duration) * timelineWidth}px`,
-                                        width: `${(clip.duration / duration) * timelineWidth}px`,
-                                        }}
-                                    >
-                                        <img src={clip.src} alt="" className="h-full w-auto object-contain p-1"/>
-                                    </div>
-                                    ))}
-                            </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-2">
-                            <div className="w-24 text-xs font-semibold flex items-center gap-1 shrink-0">
-                                <Text className="h-4 w-4" />
-                                <span>Piste Texte</span>
-                            </div>
-                            <div className="h-12 bg-muted rounded-md flex-1 relative flex items-center">
-                                {textClips.map((clip) => (
-                                    <div
-                                        key={clip.id}
-                                        className={cn(
-                                            'h-full bg-blue-500/20 border-2 border-blue-500',
-                                            'flex items-center justify-center text-xs text-center p-1',
-                                            'absolute'
-                                        )}
-                                        style={{
-                                        left: `${(clip.start / duration) * timelineWidth}px`,
-                                        width: `${(clip.duration / duration) * timelineWidth}px`,
-                                        }}
-                                    >
-                                        <span className="truncate">{clip.text}</span>
-                                    </div>
-                                    ))}
-                            </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                            <div className="w-24 text-xs font-semibold flex items-center gap-1 shrink-0">
-                                <Music className="h-4 w-4" />
-                                <span>Piste Audio</span>
-                            </div>
-                            <div className="h-12 bg-muted rounded-md flex-1 relative flex items-center">
-                                {clips.map((clip) => (
-                                    <div
-                                        key={`audio-${clip.id}`}
-                                        className={cn(
-                                        'h-full bg-green-500/20',
+                        <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs font-semibold flex items-center gap-1 shrink-0">
+                            <FileImage className="h-4 w-4" />
+                            <span>Piste Image</span>
+                        </div>
+                        <div className="h-12 bg-muted rounded-md flex-1 relative flex items-center">
+                            {imageClips.map((clip) => (
+                                <div
+                                    key={clip.id}
+                                    className={cn(
+                                        'h-full bg-orange-500/20 border-2 border-orange-500',
                                         'flex items-center justify-center text-xs text-center p-1',
                                         'absolute'
-                                        )}
-                                        style={{
-                                        left: `${(clip.start / duration) * timelineWidth}px`,
-                                        width: `${(clip.duration / duration) * timelineWidth}px`,
-                                        }}
-                                    >
-                                    </div>
-                                    ))}
-                                    <span className="text-muted-foreground text-xs italic pl-2">Piste audio originale</span>
-                            </div>
-                            </div>
+                                    )}
+                                    style={{
+                                    left: `${(clip.start / duration) * timelineWidth}px`,
+                                    width: `${(clip.duration / duration) * timelineWidth}px`,
+                                    }}
+                                >
+                                    <img src={clip.src} alt="" className="h-full w-auto object-contain p-1"/>
+                                </div>
+                                ))}
+                        </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs font-semibold flex items-center gap-1 shrink-0">
+                            <Text className="h-4 w-4" />
+                            <span>Piste Texte</span>
+                        </div>
+                        <div className="h-12 bg-muted rounded-md flex-1 relative flex items-center">
+                            {textClips.map((clip) => (
+                                <div
+                                    key={clip.id}
+                                    className={cn(
+                                        'h-full bg-blue-500/20 border-2 border-blue-500',
+                                        'flex items-center justify-center text-xs text-center p-1',
+                                        'absolute'
+                                    )}
+                                    style={{
+                                    left: `${(clip.start / duration) * timelineWidth}px`,
+                                    width: `${(clip.duration / duration) * timelineWidth}px`,
+                                    }}
+                                >
+                                    <span className="truncate">{clip.text}</span>
+                                </div>
+                                ))}
+                        </div>
+                        </div>
 
-                            <div className="flex items-center gap-2">
-                            <div className="w-24 text-xs font-semibold flex items-center gap-1 shrink-0">
-                                <Mic className="h-4 w-4" />
-                                <span>Voix Off</span>
-                            </div>
-                            <div className="h-12 bg-muted rounded-md flex-1 relative flex items-center">
-                                    {audioClips.map((clip) => (
-                                    <div
-                                        key={clip.id}
-                                        className={cn(
-                                            'h-full bg-red-500/20 border-2 border-red-500',
-                                            'flex items-center justify-center text-xs text-center p-1',
-                                            'absolute'
-                                        )}
-                                        style={{
-                                        left: `${(clip.start / duration) * timelineWidth}px`,
-                                        width: `${(clip.duration / duration) * timelineWidth}px`,
-                                        }}
-                                    >
-                                        <span className="truncate">Voix Off</span>
-                                    </div>
-                                    ))}
-                            </div>
-                            </div>
+                        <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs font-semibold flex items-center gap-1 shrink-0">
+                            <Music className="h-4 w-4" />
+                            <span>Piste Audio</span>
+                        </div>
+                        <div className="h-12 bg-muted rounded-md flex-1 relative flex items-center">
+                            {clips.map((clip) => (
+                                <div
+                                    key={`audio-${clip.id}`}
+                                    className={cn(
+                                    'h-full bg-green-500/20',
+                                    'flex items-center justify-center text-xs text-center p-1',
+                                    'absolute'
+                                    )}
+                                    style={{
+                                    left: `${(clip.start / duration) * timelineWidth}px`,
+                                    width: `${(clip.duration / duration) * timelineWidth}px`,
+                                    }}
+                                >
+                                </div>
+                                ))}
+                                <span className="text-muted-foreground text-xs italic pl-2">Piste audio originale</span>
+                        </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                        <div className="w-24 text-xs font-semibold flex items-center gap-1 shrink-0">
+                            <Mic className="h-4 w-4" />
+                            <span>Voix Off</span>
+                        </div>
+                        <div className="h-12 bg-muted rounded-md flex-1 relative flex items-center">
+                                {audioClips.map((clip) => (
+                                <div
+                                    key={clip.id}
+                                    className={cn(
+                                        'h-full bg-red-500/20 border-2 border-red-500',
+                                        'flex items-center justify-center text-xs text-center p-1',
+                                        'absolute'
+                                    )}
+                                    style={{
+                                    left: `${(clip.start / duration) * timelineWidth}px`,
+                                    width: `${(clip.duration / duration) * timelineWidth}px`,
+                                    }}
+                                >
+                                    <span className="truncate">Voix Off</span>
+                                </div>
+                                ))}
+                        </div>
                         </div>
                     </div>
+                </div>
 
-                </CardContent>
-                </Card>
-            </div>
-
-            <div className="space-y-4">
-                <Card>
-                <CardHeader>
-                    <CardTitle>Outils d'édition</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <Button className="w-full justify-start" onClick={handleSplitClip} disabled={!activeClip || isExporting}>
-                    <Scissors className="mr-2 h-4 w-4" /> Couper / Scinder
-                    </Button>
-                    
-                    <Dialog open={isTextDialogOpen} onOpenChange={setIsTextDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button className="w-full justify-start" disabled={!videoSrc || isExporting}>
-                        <Type className="mr-2 h-4 w-4" /> Ajouter du Texte
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                        <DialogTitle>Ajouter un calque de texte</DialogTitle>
-                        </DialogHeader>
-                        <div className="py-4">
-                            <Textarea 
-                                placeholder="Votre texte ici..."
-                                value={newText}
-                                onChange={(e) => setNewText(e.target.value)}
-                            />
-                            <p className="text-sm text-muted-foreground mt-2">
-                            Le texte sera ajouté à la position actuelle de la tête de lecture ({formatTime(currentTime)}) pour une durée de 3 secondes.
-                            </p>
-                        </div>
-                        <DialogFooter>
-                        <DialogClose asChild>
-                            <Button variant="ghost">Annuler</Button>
-                        </DialogClose>
-                        <Button onClick={handleAddText}>Ajouter le texte</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                    </Dialog>
-
-                    <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button className="w-full justify-start" disabled={!videoSrc || isExporting}>
-                            <ImageIcon className="mr-2 h-4 w-4" /> Incruster une Image/Logo
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                        <DialogTitle>Incruster une image ou un logo</DialogTitle>
-                        </DialogHeader>
-                        <div className="py-4 space-y-4">
-                            <Input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageFileChange}
-                            />
-                            {newImageFile && (
-                                <div className="text-sm text-muted-foreground">
-                                    <p>Aperçu :</p>
-                                    <img src={URL.createObjectURL(newImageFile)} alt="Aperçu" className="mt-2 rounded-md max-h-40"/>
-                                </div>
-                            )}
-                            <p className="text-sm text-muted-foreground">
-                            L'image sera ajoutée à la position actuelle de la tête de lecture ({formatTime(currentTime)}) pour une durée de 5 secondes.
-                            </p>
-                        </div>
-                        <DialogFooter>
-                        <DialogClose asChild>
-                            <Button variant="ghost">Annuler</Button>
-                        </DialogClose>
-                        <Button onClick={handleAddImage} disabled={!newImageFile}>Ajouter l'image</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                    </Dialog>
-                    
-                    <Dialog open={isVoiceOverDialogOpen} onOpenChange={setIsVoiceOverDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button className="w-full justify-start" disabled={!videoSrc || isExporting}>
-                            <Mic className="mr-2 h-4 w-4" /> Ajouter une Voix Off
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                        <DialogTitle>Ajouter une Voix Off</DialogTitle>
-                        </DialogHeader>
-                        <div className="py-4 space-y-4 text-center">
-                            <p className="text-sm text-muted-foreground">
-                            L'enregistrement commencera à la position actuelle de la tête de lecture: {formatTime(currentTime)}.
-                            </p>
-                            {!isRecording ? (
-                                <Button size="lg" onClick={handleStartRecording}>
-                                    <Circle className="mr-2 h-4 w-4 fill-red-500 text-red-500" />
-                                    Démarrer l'enregistrement
-                                </Button>
-                            ) : (
-                                <Button size="lg" onClick={handleStopRecording} variant="destructive">
-                                    <Square className="mr-2 h-4 w-4 fill-white" />
-                                    Arrêter l'enregistrement
-                                </Button>
-                            )}
-                            {isRecording && (
-                                <p className="text-sm text-red-500 animate-pulse">Enregistrement en cours...</p>
-                            )}
-                        </div>
-                        <DialogFooter>
-                        <DialogClose asChild>
-                            <Button variant="ghost">Fermer</Button>
-                        </DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                    </Dialog>
-
-                </CardContent>
-                </Card>
-                <Button className="w-full" size="lg" onClick={handleExport} disabled={isExporting || !videoSrc}>
-                    {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
-                    {isExporting ? `Exportation... ${exportProgress}%` : 'Exporter la Vidéo'}
-                </Button>
-                {isExporting && <Progress value={exportProgress} className="w-full"/>}
-            </div>
-            </div>
-        )}
+            </CardContent>
+            </Card>
         </div>
-    </AuthRequiredWrapper>
+
+        <div className="space-y-4">
+            <Card>
+            <CardHeader>
+                <CardTitle>Outils d'édition</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <Button className="w-full justify-start" onClick={handleSplitClip} disabled={!activeClip || isExporting}>
+                <Scissors className="mr-2 h-4 w-4" /> Couper / Scinder
+                </Button>
+                
+                <Dialog open={isTextDialogOpen} onOpenChange={setIsTextDialogOpen}>
+                <DialogTrigger asChild>
+                    <Button className="w-full justify-start" disabled={!videoSrc || isExporting}>
+                    <Type className="mr-2 h-4 w-4" /> Ajouter du Texte
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                    <DialogTitle>Ajouter un calque de texte</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Textarea 
+                            placeholder="Votre texte ici..."
+                            value={newText}
+                            onChange={(e) => setNewText(e.target.value)}
+                        />
+                        <p className="text-sm text-muted-foreground mt-2">
+                        Le texte sera ajouté à la position actuelle de la tête de lecture ({formatTime(currentTime)}) pour une durée de 3 secondes.
+                        </p>
+                    </div>
+                    <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="ghost">Annuler</Button>
+                    </DialogClose>
+                    <Button onClick={handleAddText}>Ajouter le texte</Button>
+                    </DialogFooter>
+                </DialogContent>
+                </Dialog>
+
+                <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
+                <DialogTrigger asChild>
+                    <Button className="w-full justify-start" disabled={!videoSrc || isExporting}>
+                        <ImageIcon className="mr-2 h-4 w-4" /> Incruster une Image/Logo
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                    <DialogTitle>Incruster une image ou un logo</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                        <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageFileChange}
+                        />
+                        {newImageFile && (
+                            <div className="text-sm text-muted-foreground">
+                                <p>Aperçu :</p>
+                                <img src={URL.createObjectURL(newImageFile)} alt="Aperçu" className="mt-2 rounded-md max-h-40"/>
+                            </div>
+                        )}
+                        <p className="text-sm text-muted-foreground">
+                        L'image sera ajoutée à la position actuelle de la tête de lecture ({formatTime(currentTime)}) pour une durée de 5 secondes.
+                        </p>
+                    </div>
+                    <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="ghost">Annuler</Button>
+                    </DialogClose>
+                    <Button onClick={handleAddImage} disabled={!newImageFile}>Ajouter l'image</Button>
+                    </DialogFooter>
+                </DialogContent>
+                </Dialog>
+                
+                <Dialog open={isVoiceOverDialogOpen} onOpenChange={setIsVoiceOverDialogOpen}>
+                <DialogTrigger asChild>
+                    <Button className="w-full justify-start" disabled={!videoSrc || isExporting}>
+                        <Mic className="mr-2 h-4 w-4" /> Ajouter une Voix Off
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                    <DialogTitle>Ajouter une Voix Off</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4 text-center">
+                        <p className="text-sm text-muted-foreground">
+                        L'enregistrement commencera à la position actuelle de la tête de lecture: {formatTime(currentTime)}.
+                        </p>
+                        {!isRecording ? (
+                            <Button size="lg" onClick={handleStartRecording}>
+                                <Circle className="mr-2 h-4 w-4 fill-red-500 text-red-500" />
+                                Démarrer l'enregistrement
+                            </Button>
+                        ) : (
+                            <Button size="lg" onClick={handleStopRecording} variant="destructive">
+                                <Square className="mr-2 h-4 w-4 fill-white" />
+                                Arrêter l'enregistrement
+                            </Button>
+                        )}
+                        {isRecording && (
+                            <p className="text-sm text-red-500 animate-pulse">Enregistrement en cours...</p>
+                        )}
+                    </div>
+                    <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="ghost">Fermer</Button>
+                    </DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+                </Dialog>
+
+            </CardContent>
+            </Card>
+            <Button className="w-full" size="lg" onClick={handleExport} disabled={isExporting || !videoSrc}>
+                {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
+                {isExporting ? `Exportation... ${exportProgress}%` : 'Exporter la Vidéo'}
+            </Button>
+            {isExporting && <Progress value={exportProgress} className="w-full"/>}
+        </div>
+        </div>
+    )}
+    </div>
   );
 }
-
-    
