@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -8,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
-import { doc, setDoc } from 'firebase/firestore'; 
+import { doc, setDoc } from 'firebase/firestore';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -61,11 +60,6 @@ export default function SignupPage() {
         uid: user.uid,
         email: user.email,
         displayName: user.email?.split('@')[0] || 'Nouvel utilisateur', // default display name
-        subscription: {
-          plan: 'gratuit',
-          status: 'active',
-          endDate: null,
-        }
       });
 
       toast({
