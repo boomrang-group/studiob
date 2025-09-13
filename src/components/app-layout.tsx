@@ -102,16 +102,7 @@ function Header({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
         {children}
         <div className="flex-1 text-right">
-            {loading ? (
-                <div />
-            ) : user ? (
-                <Button asChild>
-                    <Link href="/subscribe">
-                        <Crown className="mr-2 h-4 w-4" />
-                        Passer au Premium
-                    </Link>
-                </Button>
-            ) : (
+            {!user && !loading && (
                 <Button asChild variant="outline">
                     <Link href="/login">
                         <LogIn className="mr-2 h-4 w-4" />

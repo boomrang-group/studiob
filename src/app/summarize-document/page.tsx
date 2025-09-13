@@ -57,10 +57,7 @@ export default function SummarizeDocumentPage() {
   const [audioDialogue, setAudioDialogue] = useState<string | null>(null);
   const [fileName, setFileName] = useState('');
   const { toast } = useToast();
-  const { user, userData } = useAuth();
-  
-  const credits = userData?.subscription?.credits;
-  const isPayAsYouGo = userData?.subscription?.plan === 'Pay-As-You-Go';
+  const { user } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -156,14 +153,6 @@ export default function SummarizeDocumentPage() {
         Importez un document et obtenez un résumé concis en quelques instants.
         </p>
     </div>
-
-    {user && isPayAsYouGo && (
-        <Card>
-            <CardContent className="pt-6">
-                <p className="text-center text-muted-foreground">Crédits restants : <span className="font-bold text-primary">{credits ?? 0}</span></p>
-            </CardContent>
-        </Card>
-    )}
 
     <Card>
         <CardHeader>

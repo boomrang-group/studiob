@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Loader2, Download, Crown } from 'lucide-react';
+import { Loader2, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
@@ -33,11 +33,7 @@ export default function GenerateScriptPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [scriptContent, setScriptContent] = useState('');
   const { toast } = useToast();
-  const { user, userData } = useAuth();
-  
-  const credits = userData?.subscription?.credits;
-  const isPayAsYouGo = userData?.subscription?.plan === 'Pay-As-You-Go';
-
+  const { user } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -84,14 +80,6 @@ export default function GenerateScriptPage() {
         Transformez vos idées de leçons en scripts vidéo prêts à être tournés.
         </p>
     </div>
-
-    {user && isPayAsYouGo && (
-        <Card>
-            <CardContent className="pt-6">
-                <p className="text-center text-muted-foreground">Crédits restants : <span className="font-bold text-primary">{credits ?? 0}</span></p>
-            </CardContent>
-        </Card>
-    )}
 
     <Card>
         <CardHeader>
@@ -168,10 +156,9 @@ export default function GenerateScriptPage() {
         </CardContent>
         <CardFooter>
             <Button asChild variant="outline">
-                <Link href="/subscribe">
-                    <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                <Link href="/edit-video">
                     <Download className="mr-2 h-4 w-4" />
-                    Exporter en MP4
+                    Monter la vidéo
                 </Link>
             </Button>
         </CardFooter>

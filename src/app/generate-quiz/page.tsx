@@ -28,10 +28,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Loader2, Share2, ClipboardCopy, Crown, Download } from 'lucide-react';
+import { Loader2, Share2, ClipboardCopy, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
   lessonText: z.string().min(50, 'Le texte de la leçon doit contenir au moins 50 caractères.'),
@@ -45,12 +44,8 @@ export default function GenerateQuizPage() {
   const [quizData, setQuizData] = useState<GenerateQuizOutput | null>(null);
   const [quizLink, setQuizLink] = useState('');
   const { toast } = useToast();
-  const { user, isSubscribed, loading: authLoading, userData } = useAuth();
+  const { user } = useAuth();
   
-  const credits = userData?.subscription?.credits;
-  const isPayAsYouGo = userData?.subscription?.plan === 'Pay-As-You-Go';
-
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -158,14 +153,6 @@ export default function GenerateQuizPage() {
         Créez des évaluations rapidement à partir de votre contenu de cours.
         </p>
     </div>
-
-    {user && isPayAsYouGo && (
-        <Card>
-            <CardContent className="pt-6">
-                <p className="text-center text-muted-foreground">Crédits restants : <span className="font-bold text-primary">{credits ?? 0}</span></p>
-            </CardContent>
-        </Card>
-    )}
 
     <Card>
         <CardHeader>
@@ -290,21 +277,10 @@ export default function GenerateQuizPage() {
             <div>
             <h3 className="font-semibold">Exporter le quiz</h3>
             <div className="mt-2">
-                { authLoading ? (
-                    <Skeleton className="h-10 w-40" />
-                ) : isSubscribed ? (
-                    <Button variant="outline" onClick={handleExportCSV}>
-                        <Download className="mr-2 h-4 w-4"/>
-                        Exporter en CSV
-                    </Button>
-                ) : (
-                    <Button variant="outline" asChild>
-                        <Link href="/subscribe">
-                            <Crown className="mr-2 h-4 w-4 text-amber-500" />
-                            Exporter en CSV (Premium)
-                        </Link>
-                    </Button>
-                )}
+                <Button variant="outline" onClick={handleExportCSV}>
+                    <Download className="mr-2 h-4 w-4"/>
+                    Exporter en CSV
+                </Button>
             </div>
             </div>
         </CardFooter>

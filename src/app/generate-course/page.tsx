@@ -22,11 +22,9 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Loader2, File, Presentation, Crown, Download } from 'lucide-react';
+import { Loader2, File, Presentation, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
   prompt: z.string().min(10, 'Le sujet doit contenir au moins 10 caractères.'),
@@ -38,12 +36,8 @@ export default function GenerateCoursePage() {
   const [lessonContent, setLessonContent] = useState('');
   const { toast } = useToast();
   const lessonContentRef = useRef<HTMLDivElement>(null);
-  const { user, isSubscribed, loading: authLoading, userData } = useAuth();
+  const { user } = useAuth();
   
-  const credits = userData?.subscription?.credits;
-  const isPayAsYouGo = userData?.subscription?.plan === 'Pay-As-You-Go';
-
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -193,14 +187,6 @@ export default function GenerateCoursePage() {
         </p>
     </div>
 
-    {user && isPayAsYouGo && (
-        <Card>
-            <CardContent className="pt-6">
-                <p className="text-center text-muted-foreground">Crédits restants : <span className="font-bold text-primary">{credits ?? 0}</span></p>
-            </CardContent>
-        </Card>
-    )}
-
     <Card>
         <CardHeader>
         <CardTitle>Créer un nouveau cours</CardTitle>
@@ -251,38 +237,14 @@ export default function GenerateCoursePage() {
                 {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
                 Exporter en PDF
             </Button>
-
-            {authLoading ? (
-                <Skeleton className="h-10 w-48" />
-            ) : isSubscribed ? (
-                <>
-                    <Button variant="outline" onClick={handleExportDocx} disabled={isExporting}>
-                        {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <File className="mr-2 h-4 w-4"/>}
-                        Word (.docx)
-                    </Button>
-                    <Button variant="outline" onClick={handleExportPptx} disabled={isExporting}>
-                        {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Presentation className="mr-2 h-4 w-4"/>}
-                        PowerPoint (.pptx)
-                    </Button>
-                </>
-            ) : (
-                <>
-                    <Button variant="outline" asChild>
-                        <Link href="/subscribe">
-                            <Crown className="mr-2 h-4 w-4 text-amber-500" />
-                            <File className="mr-2 h-4 w-4"/>
-                            Word (.docx)
-                        </Link>
-                    </Button>
-                    <Button variant="outline" asChild>
-                        <Link href="/subscribe">
-                            <Crown className="mr-2 h-4 w-4 text-amber-500" />
-                            <Presentation className="mr-2 h-4 w-4"/>
-                            PowerPoint (.pptx)
-                        </Link>
-                    </Button>
-                </>
-            )}
+            <Button variant="outline" onClick={handleExportDocx} disabled={isExporting}>
+                {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <File className="mr-2 h-4 w-4"/>}
+                Word (.docx)
+            </Button>
+            <Button variant="outline" onClick={handleExportPptx} disabled={isExporting}>
+                {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Presentation className="mr-2 h-4 w-4"/>}
+                PowerPoint (.pptx)
+            </Button>
         </CardFooter>
         </Card>
     )}
