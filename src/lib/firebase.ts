@@ -12,15 +12,13 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// petit sanity-check en dev
-if (process.env.NODE_ENV === 'development') {
-    for (const [k, v] of Object.entries(firebaseConfig)) {
-        if (!v) {
-            console.error(`Firebase config manquante: ${k} est vide/undefined. Vérifiez votre fichier .env`);
-        }
-    }
+// Vérification bloquante pour s'assurer que les clés Firebase sont définies.
+// Si une clé est manquante, l'application ne démarrera pas et affichera une erreur claire.
+for (const [key, value] of Object.entries(firebaseConfig)) {
+  if (!value) {
+    throw new Error(`Configuration Firebase manquante : La variable d'environnement pour "${key}" n'est pas définie. Veuillez vérifier votre fichier .env.`);
+  }
 }
-
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
