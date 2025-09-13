@@ -65,14 +65,6 @@ export default function SummarizeDocumentPage() {
   const fileRef = form.register('document');
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) {
-        toast({
-            title: 'Authentification requise',
-            description: 'Veuillez vous connecter pour générer du contenu.',
-            variant: 'destructive',
-        });
-        return;
-    }
     setIsLoading(true);
     setSummary('');
     setAudioSummary(null);
