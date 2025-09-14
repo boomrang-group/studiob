@@ -36,7 +36,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = [
   'application/pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // .docx
 ];
 
 const textFormSchema = z.object({
@@ -52,7 +51,7 @@ const documentFormSchema = z.object({
     .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `La taille maximum est de 5MB.`)
     .refine(
       (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
-      'Uniquement les fichiers .pdf et .docx sont acceptés.'
+      'Uniquement les fichiers .pdf sont acceptés.'
     ),
   questionType: z.enum(['multiple choice', 'true/false', 'short answer']),
   numberOfQuestions: z.coerce.number().int().min(1).max(10),
@@ -274,10 +273,10 @@ export default function GenerateQuizPage() {
                           <FormControl>
                           <div className="relative">
                               <FileUp className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                              <Input type="file" className="pl-10" {...fileRef} accept=".pdf,.docx" />
+                              <Input type="file" className="pl-10" {...fileRef} accept=".pdf" />
                           </div>
                           </FormControl>
-                           <p className="text-sm text-muted-foreground">Formats acceptés : PDF, DOCX. Taille max : 5MB.</p>
+                           <p className="text-sm text-muted-foreground">Format accepté : PDF. Taille max : 5MB.</p>
                           <FormMessage />
                         </FormItem>
                       )}

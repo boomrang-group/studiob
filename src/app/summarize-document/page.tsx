@@ -165,7 +165,7 @@ export default function SummarizeDocumentPage() {
                     <FormControl>
                     <div className="relative">
                         <FileUp className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input type="file" className="pl-10" {...fileRef} />
+                        <Input type="file" className="pl-10" {...fileRef} accept=".pdf,.txt" />
                     </div>
                     </FormControl>
                     <FormMessage />
