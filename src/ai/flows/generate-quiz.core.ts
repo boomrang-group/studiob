@@ -1,5 +1,5 @@
 /**
- * @fileOverview Core logic for generating quizzes from lesson text using AI.
+ * @fileOverview Core logic for generating quizzes from lesson text or documents using AI.
  */
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
@@ -8,7 +8,12 @@ import {googleAI} from '@genkit-ai/googleai';
 export const GenerateQuizInputSchema = z.object({
   lessonText: z
     .string()
+    .optional()
     .describe('The lesson text to generate a quiz from.'),
+  documentDataUri: z
+    .string()
+    .optional()
+    .describe("A document to generate a quiz from, as a data URI. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
   questionType: z
     .enum(['multiple choice', 'true/false', 'short answer'])
     .describe('The type of questions to generate.'),
@@ -37,10 +42,18 @@ export const prompt = ai.definePrompt({
   output: {schema: GenerateQuizOutputSchema},
   prompt: `You are an expert quiz generator for teachers.
 
-  You will generate a quiz in French from the given lesson text, generating the specified number of questions.
-  The questions should be of the specified type. For multiple choice questions, provide 4 options. For true/false questions, provide "Vrai" and "Faux" as options. For short answer, the options array can be empty, but the answer field should contain the expected answer.
+  You will generate a quiz in French from the given lesson content.
+  The content can be provided as raw text or as a document. Use the content provided to create the quiz.
 
+  The questions should be of the specified type. For multiple choice questions, provide 4 options. For true/false questions, provide "Vrai" and "Faux" as options. For short answer, the options array can be empty, but the answer field should contain the expected answer.
+  
+  {{#if lessonText}}
   Lesson Text: {{{lessonText}}}
+  {{/if}}
+  {{#if documentDataUri}}
+  Lesson Document: {{media url=documentDataUri}}
+  {{/if}}
+
   Question Type: {{{questionType}}}
   Number of Questions: {{{numberOfQuestions}}}
 
@@ -55,6 +68,9 @@ export const generateQuizFlow = ai.defineFlow(
     outputSchema: GenerateQuizOutputSchema,
   },
   async input => {
+    if (!input.lessonText && !input.documentDataUri) {
+      throw new Error('Either lesson text or a document must be provided.');
+    }
     const {output} = await prompt(input);
     return output!;
   }
