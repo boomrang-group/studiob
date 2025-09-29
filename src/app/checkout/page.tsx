@@ -26,19 +26,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CreditCard, Lock, Smartphone } from 'lucide-react';
+import { CreditCard, Lock, Smartphone, Construction } from 'lucide-react';
 import { useEffect, useState } from 'react';
-
-const creditCardSchema = z.object({
-  name: z.string().min(2, { message: 'Le nom sur la carte est requis.' }),
-  cardNumber: z
-    .string()
-    .regex(/^\d{16}$/, { message: 'Numéro de carte invalide (16 chiffres).' }),
-  expiryDate: z
-    .string()
-    .regex(/^(0[1-9]|1[0-2])\/\d{2}$/, { message: "Date d'expiration invalide (MM/AA)." }),
-  cvc: z.string().regex(/^\d{3,4}$/, { message: 'CVC invalide (3 ou 4 chiffres).' }),
-});
 
 const mobileMoneySchema = z.object({
   telephone: z.string().min(9, { message: 'Numéro de téléphone requis.' }),
@@ -68,16 +57,6 @@ function CheckoutForm() {
   }, [plan]);
 
 
-  const creditCardForm = useForm<z.infer<typeof creditCardSchema>>({
-    resolver: zodResolver(creditCardSchema),
-    defaultValues: {
-      name: '',
-      cardNumber: '',
-      expiryDate: '',
-      cvc: '',
-    },
-  });
-
   const mobileMoneyForm = useForm<z.infer<typeof mobileMoneySchema>>({
     resolver: zodResolver(mobileMoneySchema),
     defaultValues: {
@@ -85,13 +64,6 @@ function CheckoutForm() {
       email: '',
     },
   });
-
-  function onCreditCardSubmit(values: z.infer<typeof creditCardSchema>) {
-    // In a real application, you would send this to a payment provider like Stripe.
-    console.log('Credit Card details:', values);
-    const encodedPlan = encodeURIComponent(plan);
-    router.push(`/confirmation?plan=${encodedPlan}`);
-  }
 
   // Mobile money form submission is handled by a standard form POST, not an async function.
 
@@ -120,15 +92,15 @@ function CheckoutForm() {
       </div>
 
       <div>
-        <Tabs defaultValue="credit-card" className="w-full">
+        <Tabs defaultValue="mobile-money" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="credit-card">
-              <CreditCard className="mr-2 h-4 w-4" />
-              Carte de crédit
-            </TabsTrigger>
-            <TabsTrigger value="mobile-money">
+             <TabsTrigger value="mobile-money">
               <Smartphone className="mr-2 h-4 w-4" />
               Mobile Money
+            </TabsTrigger>
+            <TabsTrigger value="credit-card" disabled>
+              <CreditCard className="mr-2 h-4 w-4" />
+              Carte de crédit
             </TabsTrigger>
           </TabsList>
           
@@ -136,74 +108,11 @@ function CheckoutForm() {
           <TabsContent value="credit-card">
             <Card>
               <CardHeader>
-                <CardTitle>Informations de paiement</CardTitle>
-                <CardDescription>Veuillez entrer les détails de votre carte de crédit.</CardDescription>
+                <CardTitle>Bientôt disponible</CardTitle>
               </CardHeader>
-              <CardContent>
-                <Form {...creditCardForm}>
-                  <form onSubmit={creditCardForm.handleSubmit(onCreditCardSubmit)} className="space-y-4">
-                    <FormField
-                      control={creditCardForm.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nom sur la carte</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Jean Dupont" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={creditCardForm.control}
-                      name="cardNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Numéro de carte</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                              <Input placeholder="•••• •••• •••• ••••" className="pl-10" {...field} />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={creditCardForm.control}
-                        name="expiryDate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Date d'expiration</FormLabel>
-                            <FormControl>
-                              <Input placeholder="MM/AA" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={creditCardForm.control}
-                        name="cvc"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>CVC</FormLabel>
-                            <FormControl>
-                              <Input placeholder="•••" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <Button type="submit" className="w-full" size="lg">
-                      Payer {price}$
-                    </Button>
-                  </form>
-                </Form>
+              <CardContent className="flex flex-col items-center justify-center text-center h-48">
+                 <Construction className="h-12 w-12 text-muted-foreground mb-4"/>
+                <p className="text-muted-foreground">Le paiement par carte de crédit n'est pas encore activé. Veuillez utiliser le paiement par Mobile Money.</p>
               </CardContent>
             </Card>
           </TabsContent>
