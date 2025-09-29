@@ -55,11 +55,19 @@ export default function SignupPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
 
-      // Create a user document in Firestore
+      // Create a user document in Firestore with a default free subscription
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         email: user.email,
-        displayName: user.email?.split('@')[0] || 'Nouvel utilisateur', // default display name
+        displayName: user.email?.split('@')[0] || 'Nouvel utilisateur',
+        subscription: {
+            plan: 'gratuit',
+            status: 'active',
+            isTrial: false,
+            startDate: new Date(),
+            endDate: null,
+            credits: 0,
+        }
       });
 
       toast({
