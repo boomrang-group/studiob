@@ -37,7 +37,7 @@ export const GenerateQuizOutputSchema = z.object({
 
 export const prompt = ai.definePrompt({
   name: 'generateQuizPrompt',
-  model: googleAI.model('gemini-1.5-flash-latest'),
+  model: googleAI.model('gemini-pro'),
   input: {schema: GenerateQuizInputSchema},
   output: {schema: GenerateQuizOutputSchema},
   prompt: `You are an expert quiz generator for teachers.

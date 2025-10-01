@@ -17,7 +17,7 @@ export const GenerateVideoScriptOutputSchema = z.object({
 
 export const prompt = ai.definePrompt({
   name: 'generateVideoScriptPrompt',
-  model: googleAI.model('gemini-1.5-flash-latest'),
+  model: googleAI.model('gemini-pro'),
   input: {schema: GenerateVideoScriptInputSchema},
   output: {schema: GenerateVideoScriptOutputSchema},
   prompt: `You are an AI video script generator for educational videos.
