@@ -5,7 +5,7 @@
  */
 import { ai } from '@/ai/genkit';
 import { googleAI } from '@genkit-ai/googleai';
-import { listModels } from 'genkit/plugins/googleai';
+import { listModels } from 'genkit';
 
 export async function listAvailableModels(): Promise<string[]> {
   try {

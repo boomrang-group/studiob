@@ -62,14 +62,6 @@ const features = [
 ];
 
 export default function DashboardPage() {
-  useEffect(() => {
-    async function getModels() {
-      console.log('Fetching available models...');
-      const models = await listAvailableModels();
-      console.log('✅ Available Models:', models);
-    }
-    getModels();
-  }, []);
 
   return (
     <div className="flex flex-col gap-8">
