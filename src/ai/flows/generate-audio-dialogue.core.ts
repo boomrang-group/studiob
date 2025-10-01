@@ -40,7 +40,7 @@ function parseDataUrl(dataUrl: string): { mime: string; base64: string } {
 // ---- Prompt
 const dialoguePrompt = ai.definePrompt({
   name: 'dialoguePrompt',
-  model: googleAI.model('gemini-pro'),
+  model: googleAI.model('gemini-1.5-flash-latest'),
   input: { schema: z.object({ summary: z.string() }) },
   output: { schema: z.string() },
   prompt: `
