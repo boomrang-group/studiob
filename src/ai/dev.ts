@@ -8,3 +8,4 @@ import '@/ai/flows/generate-quiz.core.ts';
 import '@/ai/flows/summarize-document.core.ts';
 import '@/ai/flows/generate-audio-summary.core.ts';
 import '@/ai/flows/generate-audio-dialogue.core.ts';
+import '@/ai/flows/list-models.ts';
