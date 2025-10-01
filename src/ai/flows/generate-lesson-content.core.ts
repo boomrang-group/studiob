@@ -15,7 +15,7 @@ export const GenerateLessonContentOutputSchema = z.object({
 
 export const generateLessonContentPrompt = ai.definePrompt({
   name: 'generateLessonContentPrompt',
-  model: googleAI.model('gemini-1.5-flash'),
+  model: googleAI.model('gemini-1.5-flash-latest'),
   input: {schema: GenerateLessonContentInputSchema},
   output: {schema: GenerateLessonContentOutputSchema},
   prompt: `Generate lesson content in French based on the following prompt:\n\n{{prompt}}`,
