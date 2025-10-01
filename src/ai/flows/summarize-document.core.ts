@@ -19,7 +19,7 @@ export const SummarizeDocumentOutputSchema = z.object({
 
 export const prompt = ai.definePrompt({
   name: 'summarizeDocumentPrompt',
-  model: googleAI.model('gemini-1.5-flash-latest'),
+  model: googleAI.model('gemini-2.5-flash'),
   input: {schema: SummarizeDocumentInputSchema},
   output: {schema: SummarizeDocumentOutputSchema},
   prompt: `You are an expert summarizer, able to distill complex documents into their key points.
