@@ -57,13 +57,12 @@ export default function LandingPage() {
           <div className="container px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
                <Image
-                src="https://www.boomrang-group.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-07-a-19.08.28_2e9e8429.jpg"
+                src="https://picsum.photos/seed/42/600/400"
                 width={600}
                 height={400}
-                alt="Hero"
-                unoptimized
+                alt="Un assistant IA pour les enseignants"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
-                data-ai-hint="abstract educational design"
+                data-ai-hint="AI teacher"
               />
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
