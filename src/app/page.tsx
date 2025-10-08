@@ -63,6 +63,7 @@ export default function LandingPage() {
                 alt="Un assistant IA pour les enseignants"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
                 data-ai-hint="AI teacher"
+                unoptimized
               />
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
