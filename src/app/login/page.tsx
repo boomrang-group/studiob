@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -56,7 +57,7 @@ export default function LoginPage() {
         title: 'Connexion réussie',
         description: 'Vous allez être redirigé vers le tableau de bord.',
       });
-      router.push('/');
+      router.push('/dashboard');
     } catch (error: any) {
       console.error('Login error:', error);
       toast({

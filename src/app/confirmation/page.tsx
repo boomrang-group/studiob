@@ -77,7 +77,7 @@ function ConfirmationContent() {
                 </CardHeader>
                  <CardFooter>
                     <Button asChild className="w-full" size="lg">
-                        <Link href="/">Retourner au tableau de bord</Link>
+                        <Link href="/dashboard">Retourner au tableau de bord</Link>
                     </Button>
                 </CardFooter>
             </Card>
@@ -106,7 +106,7 @@ function ConfirmationContent() {
         </CardContent>
         <CardFooter>
           <Button asChild className="w-full" size="lg">
-            <Link href="/">Retourner au tableau de bord</Link>
+            <Link href="/dashboard">Retourner au tableau de bord</Link>
           </Button>
         </CardFooter>
       </Card>

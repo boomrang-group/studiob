@@ -32,13 +32,14 @@ import { Button } from './ui/button';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
 import Image from 'next/image';
+import { useAuth } from '@/hooks/use-auth';
 
 function SidebarNavigation() {
   const pathname = usePathname();
 
   const menuItems = [
     {
-      href: '/',
+      href: '/dashboard',
       label: 'Tableau de bord',
       icon: LayoutDashboard,
     },
@@ -90,7 +91,7 @@ function SidebarNavigation() {
 }
 
 function Header({ children }: { children: React.ReactNode }) {
-    const [user, loading] = useAuthState(auth);
+    const { user, loading } = useAuth();
     const router = useRouter();
 
     const handleSignOut = async () => {
@@ -103,10 +104,10 @@ function Header({ children }: { children: React.ReactNode }) {
         {children}
         <div className="flex-1 text-right">
             {!user && !loading && (
-                <Button asChild variant="outline">
+                 <Button asChild>
                     <Link href="/login">
                         <LogIn className="mr-2 h-4 w-4" />
-                        Se connecter
+                        Accéder à l'app
                     </Link>
                 </Button>
             )}
@@ -117,13 +118,30 @@ function Header({ children }: { children: React.ReactNode }) {
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [user] = useAuthState(auth);
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   const handleSignOut = async () => {
     await auth.signOut();
-    router.push('/login');
+    router.push('/');
   };
+
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
+  const showSidebar = user && !loading && !isAuthPage;
+
+  if (!showSidebar) {
+      return (
+        <>
+            <Header>
+                <Link href="/" className="flex items-center gap-2 font-semibold">
+                    <img src="https://www.boomrang-group.com/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-07-a-19.08.28_2e9e8429.jpg" alt="Studio BoomRang Logo" width={32} height={32} className="rounded-full" data-ai-hint="logo camera" />
+                    <span className="font-headline text-primary">Studio BoomRang</span>
+                </Link>
+            </Header>
+            <main>{children}</main>
+        </>
+      )
+  }
 
   return (
     <SidebarProvider>

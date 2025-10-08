@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -74,7 +75,7 @@ export default function SignupPage() {
         title: 'Inscription réussie',
         description: 'Votre compte a été créé. Vous allez être redirigé.',
       });
-      router.push('/');
+      router.push('/dashboard');
     } catch (error: any) {
       console.error('Signup error:', error);
       toast({
