@@ -20,8 +20,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useEffect } from 'react';
-import { listAvailableModels } from '@/ai/flows/list-models';
 
 const features = [
   {
