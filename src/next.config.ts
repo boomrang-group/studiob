@@ -27,7 +27,7 @@ const nextConfig = {
     // (optionnel) dépannage temporaire :
     // unoptimized: true,
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config: any, { isServer }: { isServer: boolean }) => {
     if (!isServer) {
       config.resolve = config.resolve || {};
       config.resolve.fallback = {
