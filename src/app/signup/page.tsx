@@ -32,10 +32,25 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
-const formSchema = z.object({
-  email: z.string().email({ message: 'Veuillez entrer une adresse e-mail valide.' }),
-  password: z.string().min(6, { message: 'Le mot de passe doit contenir au moins 6 caractères.' }),
-});
+const formSchema = z
+  .object({
+    firstName: z.string().min(1, 'Le prénom est requis.'),
+    lastName: z.string().min(1, 'Le nom est requis.'),
+    username: z.string().min(3, 'Le nom d\'utilisateur doit contenir au moins 3 caractères.'),
+    phone: z.string().min(10, 'Veuillez entrer un numéro de téléphone valide avec l\'indicatif.'),
+    email: z.string().email('Veuillez entrer une adresse e-mail valide.').optional().or(z.literal('')),
+    password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères.'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Les mots de passe ne correspondent pas.',
+    path: ['confirmPassword'],
+  })
+  .refine((data) => !!data.email, { // Firebase Auth requires email
+      message: 'L\'adresse e-mail est requise pour créer un compte.',
+      path: ['email'],
+  });
+
 
 export default function SignupPage() {
   const router = useRouter();
@@ -45,13 +60,29 @@ export default function SignupPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
-      password: '',
+        firstName: '',
+        lastName: '',
+        username: '',
+        phone: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
+    // Email is required by schema for now
+    if (!values.email) {
+        toast({
+            title: 'Erreur d\'inscription',
+            description: 'L\'adresse e-mail est requise pour créer un compte.',
+            variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+    }
+    
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
@@ -60,7 +91,9 @@ export default function SignupPage() {
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         email: user.email,
-        displayName: user.email?.split('@')[0] || 'Nouvel utilisateur',
+        displayName: `${values.firstName} ${values.lastName}`,
+        username: values.username,
+        phone: values.phone,
         subscription: {
             plan: 'gratuit',
             status: 'active',
@@ -91,7 +124,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[80vh]">
+    <div className="flex items-center justify-center min-h-[80vh] py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-headline">Créer un compte</CardTitle>
@@ -101,7 +134,64 @@ export default function SignupPage() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Prénom</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Jean" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nom</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Dupont" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+               <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nom d'utilisateur</FormLabel>
+                    <FormControl>
+                      <Input placeholder="jeandupont" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Numéro de téléphone</FormLabel>
+                    <FormControl>
+                      <Input placeholder="+243 XXX XXX XXX" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="email"
@@ -119,6 +209,7 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="password"
@@ -132,6 +223,21 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirmer le mot de passe</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Créer mon compte
