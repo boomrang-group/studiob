@@ -1,4 +1,4 @@
-# **App Name**: Kelasi Studio
+# **App Name**: Studio BoomRang
 
 ## Core Features:
 

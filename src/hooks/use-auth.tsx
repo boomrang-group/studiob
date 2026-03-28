@@ -17,13 +17,25 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, authLoading] = useAuthState(auth);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<DocumentData | null>(null);
-  const [dataLoading, setDataLoading] = useState(true);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (!auth) {
+        setLoading(false);
+        return;
+    }
+    const unsubscribeAuth = auth.onAuthStateChanged((u: any) => {
+        setUser(u);
+        if (!u) setLoading(false);
+    });
+    return () => unsubscribeAuth();
+  }, []);
+
+  useEffect(() => {
+    if (user && db) {
       const userDocRef = doc(db, 'users', user.uid);
       const unsubscribe = onSnapshot(userDocRef, (doc) => {
         if (doc.exists()) {
@@ -55,20 +67,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUserData(null);
           setIsSubscribed(false);
         }
-        setDataLoading(false);
+        setLoading(false);
       });
       return () => unsubscribe();
-    } else {
+    } else if (!user) {
       setUserData(null);
       setIsSubscribed(false);
-      setDataLoading(false);
+      setLoading(false);
     }
   }, [user]);
 
   const value: AuthContextType = {
     user,
     userData,
-    loading: authLoading || dataLoading,
+    loading: loading,
     isSubscribed,
   };
 

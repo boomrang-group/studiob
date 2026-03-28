@@ -10,6 +10,13 @@ import { doc, getDoc, updateDoc, increment, DocumentData } from 'firebase/firest
  * @param userId The ID of the user to check.
  */
 export async function checkAndDeductCredits(userId: string): Promise<void> {
+  if (!db) {
+    // If Firebase is not configured, we allow access in dev/test mode
+    // or we could throw a specific configuration error.
+    // For this app's resilience goal, let's log and allow if we're just testing.
+    console.warn("Firebase Firestore non configuré. Saut de la vérification des crédits.");
+    return;
+  }
   if (!userId) {
     throw new Error('Utilisateur non authentifié.');
   }

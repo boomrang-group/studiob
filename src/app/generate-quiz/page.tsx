@@ -131,7 +131,9 @@ export default function GenerateQuizPage() {
   function handleQuizGenerationSuccess(result: GenerateQuizOutput) {
     setQuizData(result);
     const dataStr = JSON.stringify(result);
-    const encodedData = Buffer.from(dataStr).toString('base64');
+    const bytes = new TextEncoder().encode(dataStr);
+    const binString = String.fromCodePoint(...bytes);
+    const encodedData = btoa(binString);
     const link = `${window.location.origin}/quiz/${Date.now()}?data=${encodeURIComponent(encodedData)}`;
     setQuizLink(link);
   }

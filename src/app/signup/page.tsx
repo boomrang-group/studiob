@@ -71,6 +71,14 @@ export default function SignupPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!auth || !db) {
+        toast({
+            title: 'Service indisponible',
+            description: 'L\'inscription est actuellement désactivée en raison d\'une configuration manquante.',
+            variant: 'destructive',
+        });
+        return;
+    }
     setIsLoading(true);
     // Email is required by schema for now
     if (!values.email) {

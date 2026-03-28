@@ -21,6 +21,7 @@ import { Loader2, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
+import DOMPurify from 'isomorphic-dompurify';
 import { useAuth } from '@/hooks/use-auth';
 
 const formSchema = z.object({
@@ -143,15 +144,13 @@ export default function GenerateScriptPage() {
         <CardContent>
             <div
             className="prose dark:prose-invert max-w-none whitespace-pre-wrap"
-            dangerouslySetInnerHTML={{ __html: scriptContent }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(scriptContent) }}
             />
         </CardContent>
         <CardFooter>
-            <Button asChild variant="outline">
-                <Link href="/edit-video">
-                    <Download className="mr-2 h-4 w-4" />
-                    Monter la vidéo
-                </Link>
+            <Button variant="outline" disabled title="Bientôt disponible">
+                <Download className="mr-2 h-4 w-4" />
+                Monter la vidéo (Bientôt disponible)
             </Button>
         </CardFooter>
         </Card>
