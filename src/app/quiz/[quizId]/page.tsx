@@ -26,7 +26,9 @@ function QuizContent() {
         const data = searchParams.get('data');
         if (data) {
             try {
-                const decodedData = Buffer.from(decodeURIComponent(data), 'base64').toString('utf-8');
+                const binString = atob(decodeURIComponent(data));
+                const bytes = Uint8Array.from(binString, (m) => m.codePointAt(0)!);
+                const decodedData = new TextDecoder().decode(bytes);
                 setQuizData(JSON.parse(decodedData));
             } catch (error) {
                 console.error("Failed to parse quiz data:", error);

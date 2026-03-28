@@ -11,6 +11,9 @@ const UpdateSubscriptionInputSchema = z.object({
 });
 
 export async function updateSubscription(input: z.infer<typeof UpdateSubscriptionInputSchema>) {
+  if (!db) {
+    throw new Error('Configuration Firestore manquante. Impossible de mettre à jour l\'abonnement.');
+  }
   const validation = UpdateSubscriptionInputSchema.safeParse(input);
 
   if (!validation.success) {

@@ -11,5 +11,10 @@ export type GenerateQuizInput = z.infer<typeof GenerateQuizInputSchema>;
 export type GenerateQuizOutput = z.infer<typeof GenerateQuizOutputSchema>;
 
 export async function generateQuiz(input: GenerateQuizInput): Promise<GenerateQuizOutput> {
-  return generateQuizFlow(input);
+  try {
+    return await generateQuizFlow(input);
+  } catch (error: any) {
+    console.error('Error in generateQuiz server action:', error);
+    throw new Error(error.message || 'Failed to generate quiz');
+  }
 }

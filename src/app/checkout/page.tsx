@@ -43,7 +43,7 @@ function CheckoutForm() {
   // Montant en centimes pour MaxiCash
   const amountInCents = parseInt(price, 10) * 100;
   // Référence unique pour la transaction
-  const transactionReference = `KELASI-${Date.now()}`;
+  const transactionReference = `BOOMRANG-${Date.now()}`;
 
   const [acceptUrl, setAcceptUrl] = useState('');
   const [declineUrl, setDeclineUrl] = useState('');

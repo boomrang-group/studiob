@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Loader2, FileUp, FileCheck, Podcast, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import DOMPurify from 'isomorphic-dompurify';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ['application/pdf', 'text/plain'];
@@ -192,7 +193,7 @@ export default function SummarizeDocumentPage() {
         <CardContent>
             <div
             className="prose dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: summary.replace(/\n/g, '<br />') }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(summary.replace(/\n/g, '<br />')) }}
             />
         </CardContent>
         <CardFooter className="flex-col items-start gap-4">

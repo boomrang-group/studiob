@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Loader2, File, Presentation, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import DOMPurify from 'isomorphic-dompurify';
 
 const formSchema = z.object({
   prompt: z.string().min(10, 'Le sujet doit contenir au moins 10 caractères.'),
@@ -221,7 +222,7 @@ export default function GenerateCoursePage() {
             <div
             ref={lessonContentRef}
             className="prose dark:prose-invert max-w-none p-4 bg-background text-foreground"
-            dangerouslySetInnerHTML={{ __html: lessonContent.replace(/\n/g, '<br />') }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(lessonContent.replace(/\n/g, '<br />')) }}
             />
         </CardContent>
         <CardFooter className="gap-2">

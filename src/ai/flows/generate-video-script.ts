@@ -11,5 +11,10 @@ export type GenerateVideoScriptInput = z.infer<typeof GenerateVideoScriptInputSc
 export type GenerateVideoScriptOutput = z.infer<typeof GenerateVideoScriptOutputSchema>;
 
 export async function generateVideoScript(input: GenerateVideoScriptInput): Promise<GenerateVideoScriptOutput> {
-  return generateVideoScriptFlow(input);
+  try {
+    return await generateVideoScriptFlow(input);
+  } catch (error: any) {
+    console.error('Error in generateVideoScript server action:', error);
+    throw new Error(error.message || 'Failed to generate video script');
+  }
 }

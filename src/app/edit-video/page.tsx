@@ -776,9 +776,9 @@ export default function EditVideoPage() {
 
             </CardContent>
             </Card>
-            <Button className="w-full" size="lg" onClick={handleExport} disabled={isExporting || !videoSrc}>
+            <Button className="w-full" size="lg" onClick={handleExport} disabled={true || isExporting || !videoSrc} title="Bientôt disponible">
                 {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
-                {isExporting ? `Exportation... ${exportProgress}%` : 'Exporter la Vidéo'}
+                {isExporting ? `Exportation... ${exportProgress}%` : 'Exporter la Vidéo (Bientôt disponible)'}
             </Button>
             {isExporting && <Progress value={exportProgress} className="w-full"/>}
         </div>

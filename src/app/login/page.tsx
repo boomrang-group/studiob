@@ -50,6 +50,14 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!auth) {
+        toast({
+            title: 'Service indisponible',
+            description: 'La connexion est actuellement désactivée en raison d\'une configuration manquante.',
+            variant: 'destructive',
+        });
+        return;
+    }
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);

@@ -40,7 +40,7 @@ function parseDataUrl(dataUrl: string): { mime: string; base64: string } {
 // ---- Prompt
 const dialoguePrompt = ai.definePrompt({
   name: 'dialoguePrompt',
-  model: googleAI.model('gemini-2.5-flash'),
+  model: googleAI.model('gemini-1.5-flash'),
   input: { schema: z.object({ summary: z.string() }) },
   output: { schema: z.string() },
   prompt: `
@@ -74,7 +74,7 @@ export const generateAudioDialogueFlow = ai.defineFlow(
     if (!dialogueScript) throw new Error('Failed to generate dialogue script.');
 
     const result = await ai.generate({
-      model: googleAI.model('gemini-2.5-flash-preview-tts'),
+      model: googleAI.model('gemini-1.5-flash'),
       config: {
         responseModalities: ['AUDIO'],
         speechConfig: {
