@@ -45,7 +45,7 @@ export const generateAudioSummaryFlow = ai.defineFlow(
   },
   async (query) => {
     const { media } = await ai.generate({
-      model: googleAI.model('gemini-1.5-flash'),
+      model: googleAI.model('gemini-2.0-flash'),
       config: {
         responseModalities: ['AUDIO'],
         speechConfig: {
