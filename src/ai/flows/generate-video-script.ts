@@ -10,11 +10,12 @@ import type { GenerateVideoScriptInputSchema, GenerateVideoScriptOutputSchema } 
 export type GenerateVideoScriptInput = z.infer<typeof GenerateVideoScriptInputSchema>;
 export type GenerateVideoScriptOutput = z.infer<typeof GenerateVideoScriptOutputSchema>;
 
-export async function generateVideoScript(input: GenerateVideoScriptInput): Promise<GenerateVideoScriptOutput> {
+export async function generateVideoScript(input: GenerateVideoScriptInput): Promise<{ data: GenerateVideoScriptOutput | null; error: string | null }> {
   try {
-    return await generateVideoScriptFlow(input);
+    const data = await generateVideoScriptFlow(input);
+    return { data, error: null };
   } catch (error: any) {
     console.error('Error in generateVideoScript server action:', error);
-    throw new Error(error.message || 'Failed to generate video script');
+    return { data: null, error: error.message || 'Une erreur est survenue lors de la génération du script.' };
   }
 }

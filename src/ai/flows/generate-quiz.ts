@@ -10,11 +10,12 @@ import type { GenerateQuizInputSchema, GenerateQuizOutputSchema } from './genera
 export type GenerateQuizInput = z.infer<typeof GenerateQuizInputSchema>;
 export type GenerateQuizOutput = z.infer<typeof GenerateQuizOutputSchema>;
 
-export async function generateQuiz(input: GenerateQuizInput): Promise<GenerateQuizOutput> {
+export async function generateQuiz(input: GenerateQuizInput): Promise<{ data: GenerateQuizOutput | null; error: string | null }> {
   try {
-    return await generateQuizFlow(input);
+    const data = await generateQuizFlow(input);
+    return { data, error: null };
   } catch (error: any) {
     console.error('Error in generateQuiz server action:', error);
-    throw new Error(error.message || 'Failed to generate quiz');
+    return { data: null, error: error.message || 'Une erreur est survenue lors de la génération du quiz.' };
   }
 }

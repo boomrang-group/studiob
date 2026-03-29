@@ -50,13 +50,25 @@ export default function GenerateCoursePage() {
     setIsLoading(true);
     setLessonContent('');
     try {
-      const result = await generateLessonContent(values);
-      setLessonContent(result.lessonContent);
+      const { data, error } = await generateLessonContent(values);
+
+      if (error) {
+          toast({
+            title: 'Erreur',
+            description: error,
+            variant: 'destructive',
+          });
+          return;
+      }
+
+      if (data) {
+          setLessonContent(data.lessonContent);
+      }
     } catch (error: any) {
       console.error(error);
       toast({
         title: 'Erreur',
-        description: error.message || 'Une erreur est survenue lors de la génération du cours.',
+        description: 'Une erreur inattendue est survenue.',
         variant: 'destructive',
       });
     } finally {

@@ -10,14 +10,14 @@ const UpdateSubscriptionInputSchema = z.object({
   newPlan: z.string().min(1, 'New plan is required.'),
 });
 
-export async function updateSubscription(input: z.infer<typeof UpdateSubscriptionInputSchema>) {
+export async function updateSubscription(input: z.infer<typeof UpdateSubscriptionInputSchema>): Promise<{ success: boolean; error: string | null }> {
   if (!db) {
-    throw new Error('Configuration Firestore manquante. Impossible de mettre à jour l\'abonnement.');
+    return { success: false, error: 'Configuration Firestore manquante. Impossible de mettre à jour l\'abonnement.' };
   }
   const validation = UpdateSubscriptionInputSchema.safeParse(input);
 
   if (!validation.success) {
-    throw new Error('Invalid input: ' + validation.error.message);
+    return { success: false, error: 'Invalid input: ' + validation.error.message };
   }
 
   const { userId, newPlan } = validation.data;
@@ -62,9 +62,9 @@ export async function updateSubscription(input: z.infer<typeof UpdateSubscriptio
     await updateDoc(userDocRef, subscriptionUpdate);
     
     console.log(`Successfully updated subscription for user ${userId} to ${newPlan}`);
-
-  } catch (error) {
+    return { success: true, error: null };
+  } catch (error: any) {
     console.error('Error updating subscription:', error);
-    throw new Error('Could not update subscription in Firestore.');
+    return { success: false, error: error.message || 'Could not update subscription in Firestore.' };
   }
 }

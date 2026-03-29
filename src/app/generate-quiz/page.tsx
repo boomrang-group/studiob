@@ -98,10 +98,16 @@ export default function GenerateQuizPage() {
     setQuizLink('');
 
     try {
-      const result = await generateQuiz(values);
-      handleQuizGenerationSuccess(result);
+      const { data, error } = await generateQuiz(values);
+      if (error) {
+          handleQuizGenerationError(error);
+          return;
+      }
+      if (data) {
+          handleQuizGenerationSuccess(data);
+      }
     } catch (error: any) {
-      handleQuizGenerationError(error);
+      handleQuizGenerationError('Une erreur inattendue est survenue.');
     } finally {
       setIsLoading(false);
     }
@@ -115,14 +121,20 @@ export default function GenerateQuizPage() {
     try {
       const file = values.document[0];
       const documentDataUri = await fileToDataURI(file);
-      const result = await generateQuiz({
+      const { data, error } = await generateQuiz({
         documentDataUri,
         questionType: values.questionType,
         numberOfQuestions: values.numberOfQuestions,
       });
-      handleQuizGenerationSuccess(result);
+      if (error) {
+          handleQuizGenerationError(error);
+          return;
+      }
+      if (data) {
+          handleQuizGenerationSuccess(data);
+      }
     } catch (error: any) {
-      handleQuizGenerationError(error);
+      handleQuizGenerationError('Une erreur inattendue est survenue.');
     } finally {
       setIsLoading(false);
     }
@@ -140,9 +152,10 @@ export default function GenerateQuizPage() {
 
   function handleQuizGenerationError(error: any) {
     console.error(error);
+    const message = typeof error === 'string' ? error : (error.message || 'Une erreur est survenue lors de la génération du quiz.');
     toast({
       title: 'Erreur',
-      description: error.message || 'Une erreur est survenue lors de la génération du quiz.',
+      description: message,
       variant: 'destructive',
     });
   }

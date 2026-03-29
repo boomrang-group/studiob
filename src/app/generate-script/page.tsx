@@ -49,13 +49,23 @@ export default function GenerateScriptPage() {
     setIsLoading(true);
     setScriptContent('');
     try {
-      const result = await generateVideoScript(values);
-      setScriptContent(result.script);
+      const { data, error } = await generateVideoScript(values);
+      if (error) {
+          toast({
+            title: 'Erreur',
+            description: error,
+            variant: 'destructive',
+          });
+          return;
+      }
+      if (data) {
+          setScriptContent(data.script);
+      }
     } catch (error: any) {
       console.error(error);
       toast({
         title: 'Erreur',
-        description: error.message || 'Une erreur est survenue lors de la génération du script.',
+        description: 'Une erreur inattendue est survenue.',
         variant: 'destructive',
       });
     } finally {

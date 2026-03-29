@@ -36,17 +36,26 @@ function ConfirmationContent() {
     
     const performUpdate = async () => {
         try {
-            await updateSubscription({ userId: user.uid, newPlan: plan });
-            setShowConfetti(true);
-            const timer = setTimeout(() => setShowConfetti(false), 8000); // Stop confetti after 8 seconds
-            return () => clearTimeout(timer);
+            const { success, error: updateError } = await updateSubscription({ userId: user.uid, newPlan: plan });
+            if (success) {
+                setShowConfetti(true);
+                const timer = setTimeout(() => setShowConfetti(false), 8000); // Stop confetti after 8 seconds
+                return () => clearTimeout(timer);
+            } else {
+                toast({
+                    title: 'Erreur de mise à jour',
+                    description: updateError || "Une erreur est survenue lors de la mise à jour de l'abonnement.",
+                    variant: 'destructive',
+                });
+                setError(updateError || "Une erreur est survenue lors de la mise à jour de votre abonnement.");
+            }
         } catch (err: any) {
              toast({
                 title: 'Erreur de mise à jour',
-                description: err.message || "Une erreur est survenue lors de la mise à jour de l'abonnement.",
+                description: "Une erreur inattendue est survenue lors de la mise à jour de l'abonnement.",
                 variant: 'destructive',
             });
-            setError("Une erreur est survenue lors de la mise à jour de votre abonnement.");
+            setError("Une erreur inattendue est survenue lors de la mise à jour de votre abonnement.");
         } finally {
             setIsUpdating(false);
         }

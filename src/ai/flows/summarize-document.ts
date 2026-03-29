@@ -10,6 +10,12 @@ import type { SummarizeDocumentInputSchema, SummarizeDocumentOutputSchema } from
 export type SummarizeDocumentInput = z.infer<typeof SummarizeDocumentInputSchema>;
 export type SummarizeDocumentOutput = z.infer<typeof SummarizeDocumentOutputSchema>;
 
-export async function summarizeDocument(input: SummarizeDocumentInput): Promise<SummarizeDocumentOutput> {
-  return summarizeDocumentFlow(input);
+export async function summarizeDocument(input: SummarizeDocumentInput): Promise<{ data: SummarizeDocumentOutput | null; error: string | null }> {
+  try {
+    const data = await summarizeDocumentFlow(input);
+    return { data, error: null };
+  } catch (error: any) {
+    console.error('Error in summarizeDocument server action:', error);
+    return { data: null, error: error.message || 'Une erreur est survenue lors de la synthèse du document.' };
+  }
 }
