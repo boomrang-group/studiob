@@ -75,14 +75,24 @@ export default function SummarizeDocumentPage() {
     try {
       const file = values.document[0];
       const documentDataUri = await fileToDataURI(file);
-      const result = await summarizeDocument({ documentDataUri });
-      setSummary(result.summary);
-      setFileName(file.name);
+      const { data, error } = await summarizeDocument({ documentDataUri });
+      if (error) {
+        toast({
+          title: 'Erreur',
+          description: error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (data) {
+        setSummary(data.summary);
+        setFileName(file.name);
+      }
     } catch (error: any) {
       console.error(error);
       toast({
         title: 'Erreur',
-        description: error.message || 'Une erreur est survenue lors de la synthèse du document.',
+        description: 'Une erreur inattendue est survenue lors de la synthèse du document.',
         variant: 'destructive',
       });
     } finally {
@@ -95,17 +105,27 @@ export default function SummarizeDocumentPage() {
       setIsAudioLoading(true);
       setAudioSummary(null);
       try {
-          const result = await generateAudioSummary(summary);
-          setAudioSummary(result.media);
-          toast({
-            title: 'Succès',
-            description: 'Le résumé audio a été généré.'
-          });
+          const { data, error } = await generateAudioSummary(summary);
+          if (error) {
+            toast({
+                title: 'Erreur audio',
+                description: error,
+                variant: 'destructive',
+              });
+              return;
+          }
+          if (data) {
+            setAudioSummary(data.media);
+            toast({
+                title: 'Succès',
+                description: 'Le résumé audio a été généré.'
+            });
+          }
       } catch (error) {
           console.error(error);
           toast({
             title: 'Erreur audio',
-            description: 'Une erreur est survenue lors de la génération du résumé audio.',
+            description: 'Une erreur inattendue est survenue lors de la génération du résumé audio.',
             variant: 'destructive',
           })
       } finally {
@@ -118,17 +138,27 @@ export default function SummarizeDocumentPage() {
       setIsDialogueLoading(true);
       setAudioDialogue(null);
       try {
-          const result = await generateAudioDialogue(summary);
-          setAudioDialogue(result.media);
-          toast({
-            title: 'Succès',
-            description: 'Le dialogue audio a été généré.'
-          });
+          const { data, error } = await generateAudioDialogue(summary);
+          if (error) {
+            toast({
+                title: 'Erreur de dialogue',
+                description: error,
+                variant: 'destructive',
+              });
+              return;
+          }
+          if (data) {
+            setAudioDialogue(data.media);
+            toast({
+                title: 'Succès',
+                description: 'Le dialogue audio a été généré.'
+            });
+          }
       } catch (error: any) {
           console.error(error);
           toast({
             title: 'Erreur de dialogue',
-            description: 'Une erreur est survenue lors de la génération du dialogue audio.',
+            description: 'Une erreur inattendue est survenue lors de la génération du dialogue audio.',
             variant: 'destructive',
           })
       } finally {

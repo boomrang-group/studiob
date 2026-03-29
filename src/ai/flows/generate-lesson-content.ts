@@ -12,11 +12,12 @@ export type GenerateLessonContentOutput = z.infer<typeof GenerateLessonContentOu
 
 export async function generateLessonContent(
   input: GenerateLessonContentInput
-): Promise<GenerateLessonContentOutput> {
+): Promise<{ data: GenerateLessonContentOutput | null; error: string | null }> {
   try {
-    return await generateLessonContentFlow(input);
+    const data = await generateLessonContentFlow(input);
+    return { data, error: null };
   } catch (error: any) {
     console.error('Error in generateLessonContent server action:', error);
-    throw new Error(error.message || 'Failed to generate lesson content');
+    return { data: null, error: error.message || 'Une erreur est survenue lors de la génération du cours.' };
   }
 }

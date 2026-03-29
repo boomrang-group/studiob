@@ -11,9 +11,15 @@ export type GenerateAudioSummaryOutput = z.infer<typeof GenerateAudioSummaryOutp
 
 export async function generateAudioSummary(
   input: GenerateAudioSummaryInput
-): Promise<GenerateAudioSummaryOutput> {
-  if (typeof input !== 'string' || !input.trim()) {
-    throw new Error('Input must be a non-empty string.');
+): Promise<{ data: GenerateAudioSummaryOutput | null; error: string | null }> {
+  try {
+    if (typeof input !== 'string' || !input.trim()) {
+      throw new Error('Input must be a non-empty string.');
+    }
+    const data = await generateAudioSummaryFlow(input);
+    return { data, error: null };
+  } catch (error: any) {
+    console.error('Error in generateAudioSummary server action:', error);
+    return { data: null, error: error.message || 'Une erreur est survenue lors de la génération du résumé audio.' };
   }
-  return generateAudioSummaryFlow(input);
 }
