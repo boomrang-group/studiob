@@ -1,0 +1,1 @@
+- [Authentication provider](authentication-provider.md) — Use Replit-managed Clerk; the imported Firebase project was not available in this workspace.

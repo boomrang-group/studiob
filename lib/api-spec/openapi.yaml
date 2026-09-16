@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: studio
+    description: Studio BoomRang operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,94 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /generate-lesson:
+    post:
+      operationId: generateLesson
+      tags: [studio]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/LessonInput"}
+      responses:
+        "200": {description: Result, content: {application/json: {schema: {$ref: "#/components/schemas/LessonResult"}}}}
+  /generate-script:
+    post:
+      operationId: generateScript
+      tags: [studio]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ScriptInput"}
+      responses:
+        "200": {description: Result, content: {application/json: {schema: {$ref: "#/components/schemas/ScriptResult"}}}}
+  /generate-quiz:
+    post:
+      operationId: generateQuiz
+      tags: [studio]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/QuizInput"}
+      responses:
+        "200": {description: Result, content: {application/json: {schema: {$ref: "#/components/schemas/QuizResult"}}}}
+  /summarize-document:
+    post:
+      operationId: summarizeDocument
+      tags: [studio]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/SummarizeInput"}
+      responses:
+        "200": {description: Result, content: {application/json: {schema: {$ref: "#/components/schemas/SummaryResult"}}}}
+  /generate-audio-summary:
+    post:
+      operationId: generateAudioSummary
+      tags: [studio]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: "#/components/schemas/AudioSummaryInput"}}}
+      responses:
+        "501": {description: Unsupported, content: {application/json: {schema: {$ref: "#/components/schemas/NullableResult"}}}}
+  /generate-audio-dialogue:
+    post:
+      operationId: generateAudioDialogue
+      tags: [studio]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: "#/components/schemas/AudioDialogueInput"}}}
+      responses:
+        "501": {description: Unsupported, content: {application/json: {schema: {$ref: "#/components/schemas/NullableResult"}}}}
+  /update-subscription:
+    post:
+      operationId: updateSubscription
+      tags: [studio]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: "#/components/schemas/SubscriptionInput"}}}
+      responses:
+        "501": {description: Configuration error, content: {application/json: {schema: {$ref: "#/components/schemas/NullableResult"}}}}
+  /export-video:
+    post:
+      operationId: exportVideo
+      tags: [studio]
+      responses:
+        "501": {description: Unsupported, content: {application/json: {schema: {$ref: "#/components/schemas/ErrorResult"}}}}
+  /maxicash-redirect:
+    post:
+      operationId: maxicashRedirect
+      tags: [studio]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: {$ref: "#/components/schemas/MaxicashInput"}
+      responses:
+        "200": {description: Payment redirect HTML}
 components:
   schemas:
     HealthStatus:
@@ -33,4 +123,92 @@ components:
           type: string
       required:
         - status
+    LessonInput:
+      type: object
+      required: [prompt]
+      properties: {prompt: {type: string}}
+    ScriptInput:
+      type: object
+      required: [topic, targetAudience, lessonLengthMinutes]
+      properties:
+        topic: {type: string}
+        targetAudience: {type: string}
+        lessonLengthMinutes: {type: number}
+    QuizInput:
+      type: object
+      required: [questionType, numberOfQuestions]
+      properties:
+        lessonText: {type: string}
+        documentDataUri: {type: string}
+        questionType: {type: string, enum: ["multiple choice", "true/false", "short answer"]}
+        numberOfQuestions: {type: integer, minimum: 1}
+    SummarizeInput:
+      type: object
+      required: [documentDataUri]
+      properties: {documentDataUri: {type: string}}
+    AudioSummaryInput:
+      type: object
+      required: [summaryText]
+      properties: {summaryText: {type: string}}
+    AudioDialogueInput:
+      type: object
+      required: [summary]
+      properties: {summary: {type: string}}
+    SubscriptionInput:
+      type: object
+      required: [userId, newPlan]
+      properties:
+        userId: {type: string}
+        newPlan: {type: string}
+    MaxicashInput:
+      type: object
+      required: [email, telephone, Amount, Currency, Reference, accepturl, declineurl, cancelurl]
+      properties:
+        email: {type: string}
+        telephone: {type: string}
+        Amount: {type: string}
+        Currency: {type: string}
+        Reference: {type: string}
+        accepturl: {type: string}
+        declineurl: {type: string}
+        cancelurl: {type: string}
+    LessonResult:
+      type: object
+      properties:
+        data: {type: [object, "null"], properties: {lessonContent: {type: string}}, required: [lessonContent]}
+        error: {type: ["string", "null"]}
+      required: [data, error]
+    ScriptResult:
+      type: object
+      properties:
+        data: {type: [object, "null"], properties: {script: {type: string}}, required: [script]}
+        error: {type: ["string", "null"]}
+      required: [data, error]
+    QuizResult:
+      type: object
+      properties:
+        data: {type: [object, "null"], properties: {questions: {type: array, items: {$ref: "#/components/schemas/Question"}}}, required: [questions]}
+        error: {type: ["string", "null"]}
+      required: [data, error]
+    SummaryResult:
+      type: object
+      properties:
+        data: {type: [object, "null"], properties: {summary: {type: string}}, required: [summary]}
+        error: {type: ["string", "null"]}
+      required: [data, error]
+    NullableResult:
+      type: object
+      properties: {data: {type: "null"}, error: {type: ["string", "null"]}}
+      required: [data, error]
+    ErrorResult:
+      type: object
+      properties: {error: {type: string}}
+      required: [error]
+    Question:
+      type: object
+      required: [question, options, answer]
+      properties:
+        question: {type: string}
+        options: {type: array, items: {type: string}}
+        answer: {type: string}
 

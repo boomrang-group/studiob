@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Studio BoomRang"
+description = "An educational content studio for teachers to create courses, quizzes, scripts, summaries, and exportable learning materials with AI-assisted workflows."
+version = "1.0.0"
+id = "artifacts/studio-boomrang"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18808
+
+[services.development]
+run = "pnpm --filter @workspace/studio-boomrang run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/studio-boomrang", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/studio-boomrang/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18808"
+BASE_PATH = "/"
