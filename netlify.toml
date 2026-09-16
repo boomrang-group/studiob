@@ -9,5 +9,6 @@
 
 [[redirects]]
   from = "/*"
-  to = "/index.html"
-  status = 200
+  to = "https://studioboomrang.replit.app/:splat"
+  status = 302
+  force = true
