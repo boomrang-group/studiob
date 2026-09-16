@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: studio
     description: Studio BoomRang operations
+  - name: email
+    description: Email preference operations
 paths:
   /healthz:
     get:
@@ -114,6 +116,20 @@ paths:
             schema: {$ref: "#/components/schemas/MaxicashInput"}
       responses:
         "200": {description: Payment redirect HTML}
+  /email-preferences:
+    get:
+      operationId: getEmailPreferences
+      tags: [email]
+      responses:
+        "200": {description: Current preferences, content: {application/json: {schema: {$ref: "#/components/schemas/EmailPreferences"}}}}
+    patch:
+      operationId: updateEmailPreferences
+      tags: [email]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: "#/components/schemas/UpdateEmailPreferences"}}}
+      responses:
+        "200": {description: Updated preferences, content: {application/json: {schema: {$ref: "#/components/schemas/EmailPreferences"}}}}
 components:
   schemas:
     HealthStatus:
@@ -211,4 +227,19 @@ components:
         question: {type: string}
         options: {type: array, items: {type: string}}
         answer: {type: string}
+    EmailPreferences:
+      type: object
+      required: [userId, emailNotifications, marketingEmails, createdAt, updatedAt]
+      properties:
+        userId: {type: string}
+        emailNotifications: {type: boolean}
+        marketingEmails: {type: boolean}
+        createdAt: {type: string, format: date-time}
+        updatedAt: {type: string, format: date-time}
+    UpdateEmailPreferences:
+      type: object
+      required: [emailNotifications, marketingEmails]
+      properties:
+        emailNotifications: {type: boolean}
+        marketingEmails: {type: boolean}
 

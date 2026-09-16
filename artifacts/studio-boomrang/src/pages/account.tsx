@@ -54,17 +54,26 @@ export default function AccountPage() {
       primaryEmail.split('@')[0];
 
     setFullName(providerName);
-    setEmailNotifications(
-      typeof user.unsafeMetadata.emailNotifications === 'boolean'
-        ? user.unsafeMetadata.emailNotifications
-        : true,
-    );
-    setMarketingEmails(
-      typeof user.unsafeMetadata.marketingEmails === 'boolean'
-        ? user.unsafeMetadata.marketingEmails
-        : false,
-    );
-  }, [primaryEmail, user]);
+    void fetch('/api/email-preferences')
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Unable to load email preferences');
+        return response.json() as Promise<{
+          emailNotifications: boolean;
+          marketingEmails: boolean;
+        }>;
+      })
+      .then((preferences) => {
+        setEmailNotifications(preferences.emailNotifications);
+        setMarketingEmails(preferences.marketingEmails);
+      })
+      .catch(() => {
+        toast({
+          variant: 'destructive',
+          title: 'Préférences indisponibles',
+          description: 'Vos préférences e-mail n’ont pas pu être chargées.',
+        });
+      });
+  }, [primaryEmail, toast, user]);
 
   const saveProfile = async () => {
     if (!user) return;
@@ -106,13 +115,12 @@ export default function AccountPage() {
 
     setSavingPreferences(true);
     try {
-      await user.update({
-        unsafeMetadata: {
-          ...user.unsafeMetadata,
-          emailNotifications,
-          marketingEmails,
-        },
+      const response = await fetch('/api/email-preferences', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emailNotifications, marketingEmails }),
       });
+      if (!response.ok) throw new Error('Unable to save email preferences');
       toast({
         title: 'Préférences enregistrées',
         description: 'Vos choix de communication ont bien été mis à jour.',

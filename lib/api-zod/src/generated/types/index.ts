@@ -8,6 +8,7 @@
 
 export * from './audioDialogueInput';
 export * from './audioSummaryInput';
+export * from './emailPreferences';
 export * from './errorResult';
 export * from './healthStatus';
 export * from './lessonInput';
@@ -27,3 +28,4 @@ export * from './subscriptionInput';
 export * from './summarizeInput';
 export * from './summaryResult';
 export * from './summaryResultData';
+export * from './updateEmailPreferences';

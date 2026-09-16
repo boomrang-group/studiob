@@ -14,6 +14,7 @@ import {
   GenerateQuizBody, GenerateQuizResponse, SummarizeDocumentBody, SummarizeDocumentResponse,
   GenerateAudioSummaryBody, GenerateAudioDialogueBody, UpdateSubscriptionBody, MaxicashRedirectBody,
 } from "@workspace/api-zod";
+import { sendConsentAwareEmail } from "../lib/email";
 
 const router: IRouter = Router();
 const MODEL = "gemini-2.5-flash";
@@ -101,6 +102,17 @@ router.post("/generate-lesson", requireUser, limitAiRequests, async (req, res): 
   try {
     const lessonContent = await generate(`Generate lesson content in French based on this prompt:\n${parsed.data.prompt}`);
     res.json(GenerateLessonResponse.parse({ data: { lessonContent }, error: null }));
+    void sendConsentAwareEmail(res.locals.userId as string, "notification", {
+      subject: "Votre leçon Studio BoomRang est prête",
+      html: `
+        <h1 style="font-family:Arial,sans-serif">Votre leçon est prête</h1>
+        <p style="font-family:Arial,sans-serif;line-height:1.6">
+          La leçon que vous venez de générer est disponible dans Studio BoomRang.
+        </p>
+        <p><a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(",")[0]}` : "http://localhost:80"}">Ouvrir Studio BoomRang</a></p>`,
+    }).catch((emailError) => {
+      req.log.error({ err: emailError }, "Lesson notification email failed");
+    });
   } catch (error) {
     req.log.error({ err: error }, "Lesson generation failed");
     res.status(500).json({ data: null, error: "Unable to generate lesson content." });

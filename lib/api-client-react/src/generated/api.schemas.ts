@@ -137,3 +137,16 @@ export interface ErrorResult {
   error: string;
 }
 
+export interface EmailPreferences {
+  userId: string;
+  emailNotifications: boolean;
+  marketingEmails: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateEmailPreferences {
+  emailNotifications: boolean;
+  marketingEmails: boolean;
+}
+

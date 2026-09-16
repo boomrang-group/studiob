@@ -116,3 +116,26 @@ export const MaxicashRedirectBody = zod.object({
 export const MaxicashRedirectResponse = zod.unknown()
 
 
+export const GetEmailPreferencesResponse = zod.object({
+  "userId": zod.string(),
+  "emailNotifications": zod.boolean(),
+  "marketingEmails": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const UpdateEmailPreferencesBody = zod.object({
+  "emailNotifications": zod.boolean(),
+  "marketingEmails": zod.boolean()
+})
+
+export const UpdateEmailPreferencesResponse = zod.object({
+  "userId": zod.string(),
+  "emailNotifications": zod.boolean(),
+  "marketingEmails": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+

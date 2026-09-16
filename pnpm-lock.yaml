@@ -180,6 +180,9 @@ importers:
       '@google/genai':
         specifier: ^1.44.0
         version: 1.52.0
+      '@replit/connectors-sdk':
+        specifier: ^0.4.3
+        version: 0.4.3
       '@workspace/api-zod':
         specifier: workspace:*
         version: link:../../lib/api-zod
