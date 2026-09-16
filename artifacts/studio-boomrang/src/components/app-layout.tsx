@@ -100,6 +100,65 @@ function SidebarNavigation() {
   );
 }
 
+function SidebarAccountActions() {
+  const [pathname] = useLocation();
+  const { user } = useAuth();
+  const { signOut } = useClerk();
+
+  return (
+    <SidebarMenu>
+      {user && (
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild isActive={pathname === '/account'}>
+            <Link href="/account">
+              <CircleUser />
+              <span>Mon Compte</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      )}
+      <SidebarMenuItem>
+        <SidebarMenuButton onClick={() => signOut({ redirectUrl: basePath || '/' })}>
+          <LogOut />
+          <span>Se déconnecter</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
+}
+
+function SidebarBrand() {
+  return (
+    <div className="flex items-center gap-3 px-5 py-5">
+      <BrandMark />
+      <div className="min-w-0">
+        <p className="truncate font-headline text-lg font-bold leading-none text-primary">
+          Studio BoomRang
+        </p>
+        <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+          Espace enseignant
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function SidebarContents() {
+  return (
+    <>
+      <SidebarHeader className="p-0">
+        <SidebarBrand />
+      </SidebarHeader>
+      <SidebarContent className="px-3 py-3">
+        <SidebarNavigation />
+      </SidebarContent>
+      <SidebarFooter className="border-t border-sidebar-border p-3">
+        <SidebarAccountActions />
+      </SidebarFooter>
+    </>
+  );
+}
+
 function Header({ children }: { children: React.ReactNode }) {
     const { user, loading } = useAuth();
 
@@ -121,13 +180,8 @@ function Header({ children }: { children: React.ReactNode }) {
 }
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
-  const [pathname, setLocation] = useLocation();
+  const [pathname] = useLocation();
   const { user, loading } = useAuth();
-  const { signOut } = useClerk();
-
-  const handleSignOut = async () => {
-    await signOut({ redirectUrl: basePath || '/' });
-  };
 
   const isAuthPage = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
   const showSidebar = user && !loading && !isAuthPage;
@@ -147,55 +201,33 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader className="p-4">
-          <div className="flex items-center gap-2">
-            <BrandMark />
-            <h2 className="text-xl font-bold font-headline text-primary">
-              Studio BoomRang
-            </h2>
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarNavigation />
-        </SidebarContent>
-        <SidebarFooter>
-          <SidebarMenu>
-            {user && (
-                 <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={pathname === '/account'}>
-                        <Link href="/account">
-                            <CircleUser />
-                            <span>Mon Compte</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            )}
-             <SidebarMenuItem>
-                {user ? (
-                    <SidebarMenuButton onClick={handleSignOut}>
-                        <LogOut/>
-                        <span>Se déconnecter</span>
-                    </SidebarMenuButton>
-                ) : (
-                      <SidebarMenuButton asChild isActive={pathname === '/sign-in'}>
-                         <Link href="/sign-in">
-                            <LogIn/>
-                            <span>Se connecter</span>
-                        </Link>
-                    </SidebarMenuButton>
-                )}
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        <Header>
-          <SidebarTrigger className="md:hidden" />
-        </Header>
-        <main className="flex-1 p-4 md:p-6">{children}</main>
-      </SidebarInset>
+    <SidebarProvider className="bg-background">
+      <div className="flex min-h-svh w-full">
+        <aside
+          aria-label="Navigation principale"
+          className="hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar md:flex lg:w-72"
+        >
+          <SidebarContents />
+        </aside>
+
+        <div className="md:hidden">
+          <Sidebar>
+            <SidebarContents />
+          </Sidebar>
+        </div>
+
+        <SidebarInset className="min-w-0">
+          <Header>
+            <SidebarTrigger className="md:hidden" />
+            <div className="hidden min-w-0 md:block">
+              <p className="truncate text-sm font-semibold text-foreground">
+                {pathname === '/dashboard' ? 'Tableau de bord' : 'Studio BoomRang'}
+              </p>
+            </div>
+          </Header>
+          <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
+        </SidebarInset>
+      </div>
     </SidebarProvider>
   );
 }
