@@ -442,34 +442,54 @@ export default function EditVideoPage() {
   const timelineWidth = 1000;
 
   return (
-    <div className="container mx-auto p-4 space-y-8">
-    <div>
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">
-        Editeur Vidéo
-        </h1>
-        <p className="text-muted-foreground">
-        Montez vos vidéos de cours avec des outils simples et intuitifs.
-        </p>
+    <div className="mx-auto w-full max-w-[1440px] space-y-8">
+    <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div>
+            <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                Atelier de création
+            </p>
+            <h1 className="font-headline text-3xl font-bold tracking-tight md:text-4xl">
+            Éditeur vidéo
+            </h1>
+            <p className="mt-2 max-w-2xl text-muted-foreground">
+            Assemblez vos vidéos de cours, ajoutez du texte, des visuels et une voix off depuis un espace de travail clair.
+            </p>
+        </div>
     </div>
 
-    <Card>
-        <CardHeader>
-        <CardTitle>Importer une vidéo</CardTitle>
+    <Card className="overflow-hidden border-border/70 shadow-sm">
+        <CardHeader className="border-b bg-muted/30">
+            <CardTitle className="text-xl">Commencer un nouveau montage</CardTitle>
+            <p className="text-sm text-muted-foreground">
+                Importez votre vidéo principale pour ouvrir l’espace de montage.
+            </p>
         </CardHeader>
-        <CardContent>
-        <div className="flex w-full items-center space-x-2">
+        <CardContent className="p-5 md:p-6">
+        <label
+            htmlFor="video-upload"
+            className="group flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-primary/20 bg-primary/[0.025] px-6 py-8 text-center transition-colors hover:border-primary/45 hover:bg-primary/[0.05] focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"
+        >
             <Input
+            id="video-upload"
             type="file"
             accept="video/*"
             onChange={handleFileChange}
-            className="cursor-pointer"
+            className="sr-only"
             disabled={isExporting}
             />
-            <Button variant="outline" disabled={isExporting}>
-            <Upload className="mr-2 h-4 w-4" />
-            Importer
-            </Button>
-        </div>
+            <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-105">
+                <Upload className="h-5 w-5" />
+            </span>
+            <span className="font-semibold text-foreground">
+                {clips[0]?.file.name ?? 'Cliquez pour choisir une vidéo'}
+            </span>
+            <span className="mt-1 text-sm text-muted-foreground">
+                MP4, WebM ou MOV · fichier stocké uniquement dans votre navigateur
+            </span>
+            <span className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm">
+                Parcourir les fichiers
+            </span>
+        </label>
         </CardContent>
     </Card>
 
