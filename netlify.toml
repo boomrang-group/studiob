@@ -1,0 +1,12 @@
+[build]
+  command = "PORT=8080 BASE_PATH=/ pnpm --filter @workspace/studio-boomrang run typecheck && PORT=8080 BASE_PATH=/ pnpm --filter @workspace/studio-boomrang run build"
+  publish = "artifacts/studio-boomrang/dist/public"
+
+[build.environment]
+  NODE_VERSION = "22"
+  PNPM_VERSION = "10.30.3"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

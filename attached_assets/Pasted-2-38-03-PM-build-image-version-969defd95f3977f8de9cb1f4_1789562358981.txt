@@ -1,0 +1,160 @@
+2:38:03 PM: build-image version: 969defd95f3977f8de9cb1f48802a7e6f3d8c0b3 (noble-new-builds)
+2:38:03 PM: buildbot version: 83c28923de93ddb953d413d973fd22fbe7738eb9
+2:38:03 PM: Fetching cached dependencies
+2:38:03 PM: Failed to fetch cache, continuing with build
+2:38:03 PM: Starting to prepare the repo for build
+2:38:03 PM: No cached dependencies found. Cloning fresh repo
+2:38:03 PM: git clone --filter=blob:none https://github.com/boomrang-group/studiob
+2:38:04 PM: Preparing Git Reference refs/heads/main
+2:38:07 PM: Installing dependencies
+2:38:07 PM: mise ~/.config/mise/config.toml tools: python@3.14.3
+2:38:07 PM: mise ~/.config/mise/config.toml tools: ruby@3.4.8
+2:38:07 PM: mise ~/.config/mise/config.toml tools: go@1.26.2
+2:38:08 PM: Downloading and installing node v22.23.2...
+2:38:08 PM: Downloading https://nodejs.org/dist/v22.23.2/node-v22.23.2-linux-x64.tar.xz...
+2:38:08 PM: Computing checksum with sha256sum
+2:38:08 PM: Checksums matched!
+2:38:11 PM: Now using node v22.23.2 (npm v10.9.8)
+2:38:11 PM: Enabling Node.js Corepack
+2:38:11 PM: pnpm workspaces detected
+2:38:11 PM: Installing npm packages using pnpm version 10.30.3
+2:38:12 PM: Scope: all 10 workspace projects
+2:38:12 PM: Lockfile is up to date, resolution step is skipped
+2:38:12 PM: Progress: resolved 1, reused 0, downloaded 0, added 0
+2:38:12 PM: Packages: +695
+2:38:12 PM: ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2:38:13 PM: Progress: resolved 695, reused 0, downloaded 172, added 87
+2:38:14 PM: Progress: resolved 695, reused 0, downloaded 345, added 191
+2:38:15 PM: Progress: resolved 695, reused 0, downloaded 465, added 245
+2:38:16 PM: Progress: resolved 695, reused 0, downloaded 573, added 318
+2:38:17 PM: Progress: resolved 695, reused 0, downloaded 623, added 694
+2:38:17 PM: Progress: resolved 695, reused 0, downloaded 623, added 695, done
+2:38:17 PM: .../esbuild@0.28.2/node_modules/esbuild postinstall$ node install.js
+2:38:17 PM: .../esbuild@0.28.2/node_modules/esbuild postinstall: Done
+2:38:17 PM: dependencies:
+2:38:17 PM: + @replit/connectors-sdk 0.4.3
+2:38:17 PM: devDependencies:
+2:38:17 PM: + prettier 3.9.6
+2:38:17 PM: + typescript 5.9.3
+2:38:17 PM: . preinstall$ sh -c 'rm -f package-lock.json yarn.lock; case "$npm_config_user_agent" in pnpm/*) ;; *) echo "Use pnpm instead" >&2; exit 1 ;; esac'
+2:38:17 PM: . preinstall: Done
+2:38:18 PM: ╭ Warning ─────────────────────────────────────────────────────────────────────╮
+2:38:18 PM: │                                                                              │
+2:38:18 PM: │   Ignored build scripts: @clerk/shared@3.47.8, @google/genai@1.52.0,         │
+2:38:18 PM: │   core-js@3.50.0, protobufjs@7.6.6.                                          │
+2:38:18 PM: │   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+2:38:18 PM: │   to run scripts.                                                            │
+2:38:18 PM: │                                                                              │
+2:38:18 PM: ╰──────────────────────────────────────────────────────────────────────────────╯
+2:38:18 PM: Done in 6.2s using pnpm v10.30.3
+2:38:18 PM: npm packages installed using pnpm
+2:38:18 PM: Successfully installed dependencies
+2:38:18 PM: Detected 0 framework(s)
+2:38:19 PM: Starting build script
+2:38:19 PM: Section completed: initializing
+2:38:21 PM: ​
+2:38:21 PM: Netlify Build                                                 
+2:38:21 PM: ────────────────────────────────────────────────────────────────
+2:38:21 PM: ​
+2:38:21 PM: ❯ Version
+2:38:21 PM:   @netlify/build 36.4.6
+2:38:21 PM: ​
+2:38:21 PM: ❯ Flags
+2:38:21 PM:   accountId: 6840adc29f2c6a21feeff9d5
+2:38:21 PM:   baseRelDir: true
+2:38:21 PM:   buildId: 6aaa8da95196d40008e17f80
+2:38:21 PM:   deployId: 6aaa8da95196d40008e17f82
+2:38:21 PM: ​
+2:38:21 PM: ❯ Current directory
+2:38:21 PM:   /opt/build/repo
+2:38:21 PM: ​
+2:38:21 PM: ❯ Config file
+2:38:21 PM:   No config file was defined: using default values.
+2:38:21 PM: ​
+2:38:21 PM: ❯ Context
+2:38:21 PM:   production
+2:38:22 PM: ​
+2:38:22 PM: ❯ Installing extensions
+2:38:22 PM:    - neon
+2:38:36 PM: ​
+2:38:36 PM: ❯ Using Next.js Runtime - v5.15.13
+2:38:36 PM: ​
+2:38:36 PM: ❯ Loading extensions
+2:38:36 PM:    - neon
+2:38:37 PM: No Next.js cache to restore
+2:38:37 PM: ​
+2:38:37 PM: Build command from Netlify app                                
+2:38:37 PM: ────────────────────────────────────────────────────────────────
+2:38:37 PM: ​
+2:38:37 PM: $ npm run build
+2:38:37 PM: > workspace@0.0.0 build
+2:38:37 PM: > pnpm run typecheck && pnpm -r --if-present run build
+2:38:38 PM: > workspace@0.0.0 typecheck /opt/build/repo
+2:38:38 PM: > pnpm run typecheck:libs && pnpm -r --filter "./artifacts/**" --filter "./scripts" --if-present run typecheck
+2:38:38 PM: > workspace@0.0.0 typecheck:libs /opt/build/repo
+2:38:38 PM: > tsc --build
+2:38:41 PM: Scope: 4 of 10 workspace projects
+2:38:41 PM: artifacts/api-server typecheck$ tsc -p tsconfig.json --noEmit
+2:38:41 PM: artifacts/studio-boomrang typecheck$ tsc -p tsconfig.json --noEmit
+2:38:41 PM: artifacts/mockup-sandbox typecheck$ tsc -p tsconfig.json --noEmit
+2:38:45 PM: artifacts/api-server typecheck: Done
+2:38:45 PM: scripts typecheck$ tsc -p tsconfig.json --noEmit
+2:38:47 PM: scripts typecheck: Done
+2:38:49 PM: artifacts/mockup-sandbox typecheck: Done
+2:38:51 PM: artifacts/studio-boomrang typecheck: Done
+2:38:51 PM: Scope: 9 of 10 workspace projects
+2:38:51 PM: artifacts/mockup-sandbox build$ vite build
+2:38:52 PM: artifacts/mockup-sandbox build: failed to load config from /opt/build/repo/artifacts/mockup-sandbox/vite.config.ts
+2:38:52 PM: artifacts/mockup-sandbox build: error during build:
+2:38:52 PM: artifacts/mockup-sandbox build: Error: PORT environment variable is required but was not provided.
+2:38:52 PM: artifacts/mockup-sandbox build:     at file:///opt/build/repo/artifacts/mockup-sandbox/node_modules/.vite-temp/vite.config.ts.timestamp-1789562331993-ac706dddca9ac.mjs:145:9
+2:38:52 PM: artifacts/mockup-sandbox build:     at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+2:38:52 PM: artifacts/mockup-sandbox build:     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+2:38:52 PM: artifacts/mockup-sandbox build:     at async loadConfigFromBundledFile (file:///opt/build/repo/node_modules/.pnpm/vite@7.3.6_@types+node@25.9.6_jiti@2.7.0_lightningcss@1.32.0_tsx@4.23.13_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:35996:12)
+2:38:52 PM: artifacts/mockup-sandbox build:     at async bundleAndLoadConfigFile (file:///opt/build/repo/node_modules/.pnpm/vite@7.3.6_@types+node@25.9.6_jiti@2.7.0_lightningcss@1.32.0_tsx@4.23.13_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:35884:17)
+2:38:52 PM: artifacts/mockup-sandbox build:     at async loadConfigFromFile (file:///opt/build/repo/node_modules/.pnpm/vite@7.3.6_@types+node@25.9.6_jiti@2.7.0_lightningcss@1.32.0_tsx@4.23.13_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:35851:42)
+2:38:52 PM: artifacts/mockup-sandbox build:     at async resolveConfig (file:///opt/build/repo/node_modules/.pnpm/vite@7.3.6_@types+node@25.9.6_jiti@2.7.0_lightningcss@1.32.0_tsx@4.23.13_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:35500:22)
+2:38:52 PM: artifacts/mockup-sandbox build:     at async createBuilder (file:///opt/build/repo/node_modules/.pnpm/vite@7.3.6_@types+node@25.9.6_jiti@2.7.0_lightningcss@1.32.0_tsx@4.23.13_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:33955:19)
+2:38:52 PM: artifacts/mockup-sandbox build:     at async CAC.<anonymous> (file:///opt/build/repo/node_modules/.pnpm/vite@7.3.6_@types+node@25.9.6_jiti@2.7.0_lightningcss@1.32.0_tsx@4.23.13_yaml@2.9.0/node_modules/vite/dist/node/cli.js:629:10)
+2:38:52 PM: artifacts/mockup-sandbox build: Failed
+2:38:52 PM: /opt/build/repo/artifacts/mockup-sandbox:
+2:38:52 PM:  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/mockup-sandbox@2.0.0 build: `vite build`
+2:38:52 PM: Exit status 1
+2:38:52 PM: ​
+2:38:52 PM: "build.command" failed                                        
+2:38:52 PM: ────────────────────────────────────────────────────────────────
+2:38:52 PM: ​
+2:38:52 PM:   Error message
+2:38:52 PM:   Command failed with exit code 1: npm run build
+2:38:52 PM: ​
+2:38:52 PM:   Error location
+2:38:52 PM:   In Build command from Netlify app:
+2:38:52 PM:   npm run build
+2:38:52 PM: ​
+2:38:52 PM:   Resolved config
+2:38:52 PM:   build:
+2:38:52 PM:     command: npm run build
+2:38:52 PM:     commandOrigin: ui
+2:38:52 PM:     environment:
+2:38:52 PM:       - GEMINI_API_KEY
+2:38:52 PM:       - MAXICASH_API_URL
+2:38:52 PM:       - MAXICASH_MERCHANT_ID
+2:38:52 PM:       - MAXICASH_MERCHANT_PASSWORD
+2:38:52 PM:       - NEXT_PUBLIC_FIREBASE_API_KEY
+2:38:52 PM:       - NEXT_PUBLIC_FIREBASE_APP_ID
+2:38:52 PM:       - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+2:38:52 PM:       - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+2:38:52 PM:       - NEXT_PUBLIC_FIREBASE_PROJECT_ID
+2:38:52 PM:       - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+2:38:52 PM:       - SECRETS_SCAN_ENABLED
+2:38:52 PM:       - SECRETS_SCAN_OMIT_PATHS
+2:38:52 PM:     publish: /opt/build/repo/.next
+2:38:52 PM:     publishOrigin: ui
+2:38:52 PM:   plugins:
+2:38:52 PM:     - inputs: {}
+2:38:52 PM:       origin: ui
+2:38:52 PM:       package: "@netlify/plugin-nextjs"
+2:38:52 PM: Build failed due to a user error: Build script returned non-zero exit code: 2
+2:38:53 PM: Failing build: Failed to build site
+2:38:53 PM: Finished processing build request in 49.896s
+2:38:53 PM: Failed during stage 'building site': Build script returned non-zero exit code: 2
