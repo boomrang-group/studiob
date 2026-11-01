@@ -6,16 +6,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useAuth() {
-  const { user, isLoaded } = useUser();
+  const hasClerkKey = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+
+  let clerkUser = null;
+  let isLoaded = true;
+
+  if (hasClerkKey) {
+    try {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const clerk = useUser();
+      clerkUser = clerk.user;
+      isLoaded = clerk.isLoaded;
+    } catch {
+      // ClerkProvider is not mounted or errored
+      isLoaded = true;
+    }
+  }
+
   return {
-    user,
-    userData: user
+    user: clerkUser,
+    userData: clerkUser
       ? {
-          email: user.primaryEmailAddress?.emailAddress ?? '',
-          displayName: user.fullName ?? '',
+          email: clerkUser.primaryEmailAddress?.emailAddress ?? '',
+          displayName: clerkUser.fullName ?? '',
         }
       : null,
     loading: !isLoaded,
-    isSubscribed: user?.publicMetadata?.subscription === 'active',
+    isSubscribed: clerkUser?.publicMetadata?.subscription === 'active',
   };
 }
