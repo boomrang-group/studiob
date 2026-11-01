@@ -6,9 +6,9 @@
   NODE_VERSION = "22"
   PNPM_VERSION = "10.30.3"
   NETLIFY_NEXT_PLUGIN_SKIP = "true"
+  NEXT_PLUGIN_FORCE_RUN = "false"
 
 [[redirects]]
   from = "/*"
-  to = "https://studioboomrang.replit.app/:splat"
-  status = 302
-  force = true
+  to = "/index.html"
+  status = 200
