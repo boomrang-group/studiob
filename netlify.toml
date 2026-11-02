@@ -1,5 +1,5 @@
 [build]
-  command = "PORT=8080 BASE_PATH=/ pnpm --filter @workspace/studio-boomrang run typecheck && PORT=8080 BASE_PATH=/ pnpm --filter @workspace/studio-boomrang run build"
+  command = "pnpm exec tsc --build --force && PORT=8080 BASE_PATH=/ pnpm --filter @workspace/studio-boomrang run build"
   publish = "artifacts/studio-boomrang/dist/public"
 
 [build.environment]
